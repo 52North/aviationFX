@@ -70,6 +70,40 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <!--<version>1.4.1</version>-->
+                    <configuration>
+                        <rules>
+                            <dependencyConvergence />
+                            <reactorModuleConvergence />
+                            <requireNoRepositories>
+                                <banRepositories>false</banRepositories>
+                                <banPluginRepositories>false</banPluginRepositories>
+                                <allowSnapshotRepositories>false</allowSnapshotRepositories>
+                                <allowSnapshotPluginRepositories>false</allowSnapshotPluginRepositories>
+                                <allowedRepositories>
+                                    <id>sonatype-nexus-snapshots</id>
+                                </allowedRepositories>
+                                <allowedPluginRepositories />
+                            </requireNoRepositories>
+                            <requireJavaVersion>
+                                <version>[1.7,)</version>
+                            </requireJavaVersion>
+                            <requirePluginVersions>
+                                <banLatest>true</banLatest>
+                                <banRelease>true</banRelease>
+                                <banSnapshots>true</banSnapshots>
+                                <phases>clean,deploy</phases>
+                            </requirePluginVersions>
+                        </rules>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
