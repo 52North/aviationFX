@@ -1,16 +1,207 @@
 package org.n52.aviation.aviationfx;
 
+import com.lynden.gmapsfx.GoogleMapView;
+import com.lynden.gmapsfx.MapComponentInitializedListener;
+import com.lynden.gmapsfx.javascript.event.UIEventType;
+import com.lynden.gmapsfx.javascript.object.Animation;
+import com.lynden.gmapsfx.javascript.object.GoogleMap;
+import com.lynden.gmapsfx.javascript.object.LatLong;
+import com.lynden.gmapsfx.javascript.object.LatLongBounds;
+import com.lynden.gmapsfx.javascript.object.MVCArray;
+import com.lynden.gmapsfx.javascript.object.MapOptions;
+import com.lynden.gmapsfx.javascript.object.MapTypeIdEnum;
+import com.lynden.gmapsfx.javascript.object.Marker;
+import com.lynden.gmapsfx.javascript.object.MarkerOptions;
+import com.lynden.gmapsfx.shapes.ArcBuilder;
+import com.lynden.gmapsfx.shapes.Circle;
+import com.lynden.gmapsfx.shapes.CircleOptions;
+import com.lynden.gmapsfx.shapes.Polygon;
+import com.lynden.gmapsfx.shapes.PolygonOptions;
+import com.lynden.gmapsfx.shapes.Polyline;
+import com.lynden.gmapsfx.shapes.PolylineOptions;
+import com.lynden.gmapsfx.shapes.Rectangle;
+import com.lynden.gmapsfx.shapes.RectangleOptions;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
+import netscape.javascript.JSObject;
 
-public class FXMLController implements Initializable {
+public class FXMLController implements Initializable, MapComponentInitializedListener {
 
     @FXML
     private Label label;
+
+    @FXML
+    private AnchorPane mapWrapper;
+
+    @FXML
+    private GoogleMapView mapComponent;
+
+
+    private GoogleMap map;
+    private MarkerOptions markerOptions2;
+    private Marker myMarker2;
+
+
+
+    @Override
+    public void mapInitialized() {
+        //Once the map has been loaded by the Webview, initialize the map details.
+        LatLong center = new LatLong(51.93472, 7.6499113);
+        mapComponent.addMapReadyListener(() -> {
+            checkCenter(center);
+        });
+
+        MapOptions options = new MapOptions();
+        options.center(center)
+                .mapMarker(true)
+                .zoom(13)
+                .overviewMapControl(false)
+                .panControl(false)
+                .rotateControl(false)
+                .scaleControl(false)
+                .streetViewControl(false)
+                .zoomControl(true)
+                .mapType(MapTypeIdEnum.TERRAIN);
+
+        map = mapComponent.createMap(options);
+
+        map.setHeading(123.2);
+
+        MarkerOptions markerOptions = new MarkerOptions();
+        LatLong markerLatLong = new LatLong(47.606189, -122.335842);
+        markerOptions.position(markerLatLong)
+                .title("My new Marker")
+                .animation(Animation.DROP)
+                .visible(true);
+
+        final Marker myMarker = new Marker(markerOptions);
+
+        markerOptions2 = new MarkerOptions();
+        LatLong markerLatLong2 = new LatLong(47.906189, -122.335842);
+        markerOptions2.position(markerLatLong2)
+                .title("My new Marker")
+                .visible(true);
+
+        myMarker2 = new Marker(markerOptions2);
+
+        map.addMarker(myMarker);
+        map.addMarker(myMarker2);
+
+//        InfoWindowOptions infoOptions = new InfoWindowOptions();
+//        infoOptions.content("<h2>Here's an info window</h2><h3>with some info</h3>")
+//                .position(center);
+//
+//        InfoWindow window = new InfoWindow(infoOptions);
+//        window.open(map, myMarker);
+
+
+//        map.fitBounds(new LatLongBounds(new LatLong(30, 120), center));
+        LatLong[] ary = new LatLong[]{markerLatLong, markerLatLong2};
+        MVCArray mvc = new MVCArray(ary);
+
+        PolylineOptions polyOpts = new PolylineOptions()
+                .path(mvc)
+                .strokeColor("red")
+                .strokeWeight(2);
+
+        Polyline poly = new Polyline(polyOpts);
+        map.addMapShape(poly);
+        map.addUIEventHandler(poly, UIEventType.click, (JSObject obj) -> {
+            LatLong ll = new LatLong((JSObject) obj.getMember("latLng"));
+            System.out.println(ll.toString());
+        });
+
+        LatLong poly1 = new LatLong(47.429945, -122.84363);
+        LatLong poly2 = new LatLong(47.361153, -123.03040);
+        LatLong poly3 = new LatLong(47.387193, -123.11554);
+        LatLong poly4 = new LatLong(47.585789, -122.96722);
+        LatLong[] pAry = new LatLong[]{poly1, poly2, poly3, poly4};
+        MVCArray pmvc = new MVCArray(pAry);
+
+        PolygonOptions polygOpts = new PolygonOptions()
+                .paths(pmvc)
+                .strokeColor("blue")
+                .strokeWeight(2)
+                .editable(false)
+                .fillColor("lightBlue")
+                .fillOpacity(0.5);
+
+        Polygon pg = new Polygon(polygOpts);
+        map.addMapShape(pg);
+        map.addUIEventHandler(pg, UIEventType.click, (JSObject obj) -> {
+            //polygOpts.editable(true);
+            pg.setEditable(!pg.getEditable());
+        });
+
+        LatLong centreC = new LatLong(47.545481, -121.87384);
+        CircleOptions cOpts = new CircleOptions()
+                .center(centreC)
+                .radius(5000)
+                .strokeColor("green")
+                .strokeWeight(2)
+                .fillColor("orange")
+                .fillOpacity(0.3);
+
+        Circle c = new Circle(cOpts);
+        map.addMapShape(c);
+        map.addUIEventHandler(c, UIEventType.click, (JSObject obj) -> {
+            c.setEditable(!c.getEditable());
+        });
+
+        LatLongBounds llb = new LatLongBounds(new LatLong(47.533893, -122.89856), new LatLong(47.580694, -122.80312));
+        RectangleOptions rOpts = new RectangleOptions()
+                .bounds(llb)
+                .strokeColor("black")
+                .strokeWeight(2)
+                .fillColor("null");
+
+        Rectangle rt = new Rectangle(rOpts);
+        map.addMapShape(rt);
+
+        LatLong arcC = new LatLong(47.227029, -121.81641);
+        double startBearing = 0;
+        double endBearing = 30;
+        double radius = 30000;
+
+        MVCArray path = ArcBuilder.buildArcPoints(arcC, startBearing, endBearing, radius);
+        path.push(arcC);
+
+        Polygon arc = new Polygon(new PolygonOptions()
+                .paths(path)
+                .strokeColor("blue")
+                .fillColor("lightBlue")
+                .fillOpacity(0.3)
+                .strokeWeight(2)
+                .editable(false));
+
+        map.addMapShape(arc);
+        map.addUIEventHandler(arc, UIEventType.click, (JSObject obj) -> {
+            arc.setEditable(!arc.getEditable());
+        });
+
+    }
+
+
+    private void hideMarker() {
+        boolean visible = myMarker2.getVisible();
+        myMarker2.setVisible(! visible);
+    }
+
+    private void deleteMarker() {
+        //System.out.println("Marker was removed?");
+        map.removeMarker(myMarker2);
+    }
+
+    private void checkCenter(LatLong center) {
+    }
+
+
+
 
     @FXML
     private void handleButtonAction(ActionEvent event) {
@@ -20,6 +211,12 @@ public class FXMLController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+        mapComponent = new GoogleMapView("/html/map.html");
+        mapComponent.addMapInializedListener(this);
+        AnchorPane.setTopAnchor(mapComponent, 0.0);
+        AnchorPane.setBottomAnchor(mapComponent, 0.0);
+        AnchorPane.setLeftAnchor(mapComponent, 0.0);
+        AnchorPane.setRightAnchor(mapComponent, 0.0);
+        mapWrapper.getChildren().add(mapComponent);
     }
 }
