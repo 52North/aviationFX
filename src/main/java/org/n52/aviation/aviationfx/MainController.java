@@ -21,16 +21,26 @@ import com.lynden.gmapsfx.shapes.Polyline;
 import com.lynden.gmapsfx.shapes.PolylineOptions;
 import com.lynden.gmapsfx.shapes.Rectangle;
 import com.lynden.gmapsfx.shapes.RectangleOptions;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import netscape.javascript.JSObject;
 
-public class FXMLController implements Initializable, MapComponentInitializedListener {
+public class MainController implements Initializable, MapComponentInitializedListener {
 
     @FXML
     private Label label;
@@ -41,6 +51,14 @@ public class FXMLController implements Initializable, MapComponentInitializedLis
     @FXML
     private GoogleMapView mapComponent;
 
+    @FXML
+    private MenuBar menu;
+
+    @FXML
+    private MenuItem menuExit;
+
+    @FXML
+    private Button addSubscription;
 
     private GoogleMap map;
     private MarkerOptions markerOptions2;
@@ -101,88 +119,88 @@ public class FXMLController implements Initializable, MapComponentInitializedLis
 
 
 //        map.fitBounds(new LatLongBounds(new LatLong(30, 120), center));
-        LatLong[] ary = new LatLong[]{markerLatLong, markerLatLong2};
-        MVCArray mvc = new MVCArray(ary);
+LatLong[] ary = new LatLong[]{markerLatLong, markerLatLong2};
+MVCArray mvc = new MVCArray(ary);
 
-        PolylineOptions polyOpts = new PolylineOptions()
-                .path(mvc)
-                .strokeColor("red")
-                .strokeWeight(2);
+PolylineOptions polyOpts = new PolylineOptions()
+        .path(mvc)
+        .strokeColor("red")
+        .strokeWeight(2);
 
-        Polyline poly = new Polyline(polyOpts);
-        map.addMapShape(poly);
-        map.addUIEventHandler(poly, UIEventType.click, (JSObject obj) -> {
-            LatLong ll = new LatLong((JSObject) obj.getMember("latLng"));
-            System.out.println(ll.toString());
-        });
+Polyline poly = new Polyline(polyOpts);
+map.addMapShape(poly);
+map.addUIEventHandler(poly, UIEventType.click, (JSObject obj) -> {
+    LatLong ll = new LatLong((JSObject) obj.getMember("latLng"));
+    System.out.println(ll.toString());
+});
 
-        LatLong poly1 = new LatLong(47.429945, -122.84363);
-        LatLong poly2 = new LatLong(47.361153, -123.03040);
-        LatLong poly3 = new LatLong(47.387193, -123.11554);
-        LatLong poly4 = new LatLong(47.585789, -122.96722);
-        LatLong[] pAry = new LatLong[]{poly1, poly2, poly3, poly4};
-        MVCArray pmvc = new MVCArray(pAry);
+LatLong poly1 = new LatLong(47.429945, -122.84363);
+LatLong poly2 = new LatLong(47.361153, -123.03040);
+LatLong poly3 = new LatLong(47.387193, -123.11554);
+LatLong poly4 = new LatLong(47.585789, -122.96722);
+LatLong[] pAry = new LatLong[]{poly1, poly2, poly3, poly4};
+MVCArray pmvc = new MVCArray(pAry);
 
-        PolygonOptions polygOpts = new PolygonOptions()
-                .paths(pmvc)
-                .strokeColor("blue")
-                .strokeWeight(2)
-                .editable(false)
-                .fillColor("lightBlue")
-                .fillOpacity(0.5);
+PolygonOptions polygOpts = new PolygonOptions()
+        .paths(pmvc)
+        .strokeColor("blue")
+        .strokeWeight(2)
+        .editable(false)
+        .fillColor("lightBlue")
+        .fillOpacity(0.5);
 
-        Polygon pg = new Polygon(polygOpts);
-        map.addMapShape(pg);
-        map.addUIEventHandler(pg, UIEventType.click, (JSObject obj) -> {
-            //polygOpts.editable(true);
-            pg.setEditable(!pg.getEditable());
-        });
+Polygon pg = new Polygon(polygOpts);
+map.addMapShape(pg);
+map.addUIEventHandler(pg, UIEventType.click, (JSObject obj) -> {
+    //polygOpts.editable(true);
+    pg.setEditable(!pg.getEditable());
+});
 
-        LatLong centreC = new LatLong(47.545481, -121.87384);
-        CircleOptions cOpts = new CircleOptions()
-                .center(centreC)
-                .radius(5000)
-                .strokeColor("green")
-                .strokeWeight(2)
-                .fillColor("orange")
-                .fillOpacity(0.3);
+LatLong centreC = new LatLong(47.545481, -121.87384);
+CircleOptions cOpts = new CircleOptions()
+        .center(centreC)
+        .radius(5000)
+        .strokeColor("green")
+        .strokeWeight(2)
+        .fillColor("orange")
+        .fillOpacity(0.3);
 
-        Circle c = new Circle(cOpts);
-        map.addMapShape(c);
-        map.addUIEventHandler(c, UIEventType.click, (JSObject obj) -> {
-            c.setEditable(!c.getEditable());
-        });
+Circle c = new Circle(cOpts);
+map.addMapShape(c);
+map.addUIEventHandler(c, UIEventType.click, (JSObject obj) -> {
+    c.setEditable(!c.getEditable());
+});
 
-        LatLongBounds llb = new LatLongBounds(new LatLong(47.533893, -122.89856), new LatLong(47.580694, -122.80312));
-        RectangleOptions rOpts = new RectangleOptions()
-                .bounds(llb)
-                .strokeColor("black")
-                .strokeWeight(2)
-                .fillColor("null");
+LatLongBounds llb = new LatLongBounds(new LatLong(47.533893, -122.89856), new LatLong(47.580694, -122.80312));
+RectangleOptions rOpts = new RectangleOptions()
+        .bounds(llb)
+        .strokeColor("black")
+        .strokeWeight(2)
+        .fillColor("null");
 
-        Rectangle rt = new Rectangle(rOpts);
-        map.addMapShape(rt);
+Rectangle rt = new Rectangle(rOpts);
+map.addMapShape(rt);
 
-        LatLong arcC = new LatLong(47.227029, -121.81641);
-        double startBearing = 0;
-        double endBearing = 30;
-        double radius = 30000;
+LatLong arcC = new LatLong(47.227029, -121.81641);
+double startBearing = 0;
+double endBearing = 30;
+double radius = 30000;
 
-        MVCArray path = ArcBuilder.buildArcPoints(arcC, startBearing, endBearing, radius);
-        path.push(arcC);
+MVCArray path = ArcBuilder.buildArcPoints(arcC, startBearing, endBearing, radius);
+path.push(arcC);
 
-        Polygon arc = new Polygon(new PolygonOptions()
-                .paths(path)
-                .strokeColor("blue")
-                .fillColor("lightBlue")
-                .fillOpacity(0.3)
-                .strokeWeight(2)
-                .editable(false));
+Polygon arc = new Polygon(new PolygonOptions()
+        .paths(path)
+        .strokeColor("blue")
+        .fillColor("lightBlue")
+        .fillOpacity(0.3)
+        .strokeWeight(2)
+        .editable(false));
 
-        map.addMapShape(arc);
-        map.addUIEventHandler(arc, UIEventType.click, (JSObject obj) -> {
-            arc.setEditable(!arc.getEditable());
-        });
+map.addMapShape(arc);
+map.addUIEventHandler(arc, UIEventType.click, (JSObject obj) -> {
+    arc.setEditable(!arc.getEditable());
+});
 
     }
 
@@ -201,8 +219,6 @@ public class FXMLController implements Initializable, MapComponentInitializedLis
     }
 
 
-
-
     @FXML
     private void handleButtonAction(ActionEvent event) {
         System.out.println("You clicked me!");
@@ -211,6 +227,8 @@ public class FXMLController implements Initializable, MapComponentInitializedLis
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        menu.setUseSystemMenuBar(true);
+        menuExit.setOnAction(e -> Platform.exit());
         mapComponent = new GoogleMapView("/html/map.html");
         mapComponent.addMapInializedListener(this);
         AnchorPane.setTopAnchor(mapComponent, 0.0);
@@ -218,5 +236,25 @@ public class FXMLController implements Initializable, MapComponentInitializedLis
         AnchorPane.setLeftAnchor(mapComponent, 0.0);
         AnchorPane.setRightAnchor(mapComponent, 0.0);
         mapWrapper.getChildren().add(mapComponent);
+
+        addSubscription.setOnAction(e -> {
+            try {
+                Parent root = FXMLLoader.load(getClass().getResource("/fxml/NewSubscription.fxml"));
+
+                Scene scene = new Scene(root);
+                scene.getStylesheets().add("/styles/Styles.css");
+                //make another stage for scene2
+                Stage newStage = new Stage();
+                newStage.setTitle("Add Subscription");
+                newStage.setScene(scene);
+                //tell stage it is meannt to pop-up (Modal)
+                newStage.initModality(Modality.APPLICATION_MODAL);
+                newStage.setTitle("Pop up window");
+                //rest of code -
+                newStage.showAndWait();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
     }
 }

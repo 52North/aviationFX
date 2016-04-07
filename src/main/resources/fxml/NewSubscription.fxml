@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Group?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8.0.71" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.n52.aviation.aviationfx.subscribe.SubscribeController">
+    <center>
+        <Accordion fx:id="accordion" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0">
+            <panes>
+                <TitledPane fx:id="serverPane" animated="false" text="PubSub Server">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <TextField fx:id="pubSubServer" layoutX="14.0" layoutY="14.0" prefHeight="26.0" prefWidth="570.0" text="http://ows.dev.52north.org:8080/subverse-webapp/service" />
+                                <HBox layoutX="15.0" layoutY="43.523502349853516" spacing="5.0">
+                                    <children>
+                                        <Button fx:id="requestButton" mnemonicParsing="false" text="Request Metadata" />
+                                        <ProgressIndicator fx:id="requestProgress" prefHeight="24.0" prefWidth="24.0" visible="false" />
+                                    </children>
+                                </HBox>
+                                <Group fx:id="publicationGroup" layoutX="14.0" layoutY="80.0">
+                                    <children>
+                                        <ComboBox fx:id="publication" disable="true" layoutY="16.0" prefHeight="26.0" prefWidth="570.0" />
+                                        <Label text="Publication:" />
+                                    </children>
+                                </Group>
+                        <Label fx:id="publicationAbstract" alignment="TOP_LEFT" layoutX="14.0" layoutY="130.0" prefHeight="48.0" prefWidth="570.0" />
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </TitledPane>
+                <TitledPane animated="false" text="XPath Filter">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <TextArea layoutX="14.0" layoutY="14.0" prefHeight="200.0" prefWidth="570.0" fx:id="xPathFilter" />
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </TitledPane>
+                <TitledPane animated="false" text="Complex Filter">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <TextArea fx:id="complexFilter" layoutX="14.0" layoutY="14.0" prefHeight="200.0" prefWidth="570.0" />
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </TitledPane>
+                <TitledPane animated="false" layoutX="10.0" layoutY="62.0" text="Delivery Method">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <ComboBox fx:id="deliveryMethod" layoutX="14.0" layoutY="14.0" prefHeight="26.0" prefWidth="570.0" />
+                        <Label fx:id="deliveryMethodAbstract" alignment="TOP_LEFT" layoutX="14.0" layoutY="51.0" prefHeight="81.0" prefWidth="570.0" />
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </TitledPane>
+            </panes>
+        </Accordion>
+    </center>
+    <bottom>
+        <HBox spacing="5.0" BorderPane.alignment="CENTER">
+            <children>
+                <Button fx:id="okButton" mnemonicParsing="false" text="OK" />
+                <Button fx:id="cancelButton" mnemonicParsing="false" text="Cancel" />
+            <ProgressIndicator fx:id="okIndicator" prefHeight="0.0" prefWidth="24.0" visible="false" />
+            </children>
+            <opaqueInsets>
+                <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+            </opaqueInsets>
+            <BorderPane.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </BorderPane.margin>
+        </HBox>
+    </bottom>
+</BorderPane>
