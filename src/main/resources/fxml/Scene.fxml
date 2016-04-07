@@ -27,7 +27,7 @@
                               <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                        <children>
-                                          <ListView layoutX="6.0" layoutY="6.0" prefHeight="414.0" prefWidth="236.0" />
+                                          <ListView fx:id="subscriptionList" layoutX="6.0" layoutY="6.0" prefHeight="414.0" prefWidth="236.0" />
                                           <Button fx:id="addSubscription" layoutX="6.0" layoutY="429.0" mnemonicParsing="false" text="Add" />
                                        </children></AnchorPane>
                               </content>

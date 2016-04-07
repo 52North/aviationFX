@@ -9,11 +9,17 @@ public class SubscriptionProperties {
     private final String deliveryMethod;
     private final String id;
     private final String endpointParameter;
+    private final String address;
 
-    public SubscriptionProperties(String deliveryMethod, String id, String endpointParameter) {
+    public SubscriptionProperties(String deliveryMethod, String id, String endpointParameter, String address) {
         this.deliveryMethod = deliveryMethod;
         this.id = id;
         this.endpointParameter = endpointParameter;
+        this.address = address;
+    }
+
+    public String getAddress() {
+        return address;
     }
 
     public String getDeliveryMethod() {

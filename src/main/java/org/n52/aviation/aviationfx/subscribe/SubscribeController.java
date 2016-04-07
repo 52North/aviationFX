@@ -35,12 +35,14 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.n52.aviation.aviationfx.EventBusInstance;
 import org.n52.aviation.aviationfx.XmlBeansHelper;
+import org.oasisOpen.docs.wsn.b2.ConsumerReferenceDocument;
 import org.oasisOpen.docs.wsn.b2.SubscribeDocument;
-import org.oasisOpen.docs.wsn.b2.SubscribeResponseDocument;
 import org.oasisOpen.docs.wsn.b2.SubscribeResponseDocument.SubscribeResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3.x2003.x05.soapEnvelope.Body;
-import org.w3.x2003.x05.soapEnvelope.Envelope;
 import org.w3.x2003.x05.soapEnvelope.EnvelopeDocument;
 import org.w3.x2005.x08.addressing.AttributedURIType;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
@@ -51,6 +53,8 @@ import org.w3.x2005.x08.addressing.ReferenceParametersType;
  * @author Matthes Rieke m.rieke@52north.org
  */
 public class SubscribeController implements Initializable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SubscribeController.class);
 
     @FXML
     private Accordion accordion;
@@ -99,8 +103,10 @@ public class SubscribeController implements Initializable {
 
             try {
                 SubscriptionProperties props = subscribe(pubSubServer.getText(), pub, dm);
+                EventBusInstance.getEventBus().post(new NewSubscriptionEvent(props));
             } catch (SubscribeFailedException ex) {
-                ex.printStackTrace();
+                EventBusInstance.getEventBus().post(new SubscribeFailedEvent(ex));
+                LOG.warn(ex.getMessage(), ex);
             }
 
             ((Node) (e.getSource())).getScene().getWindow().hide();
@@ -131,7 +137,7 @@ public class SubscribeController implements Initializable {
                     });
 
                 } catch (IOException | XmlException ex) {
-                    ex.printStackTrace();
+                    LOG.warn(ex.getMessage(), ex);
                 }
             }).start();
 
@@ -229,7 +235,19 @@ public class SubscribeController implements Initializable {
                 throw new SubscribeFailedException("No queue id in response");
             }
 
-            return new SubscriptionProperties(deliveryMethod, subId, queue);
+            Stream<XmlObject> consumerElem = XmlBeansHelper.findChildren(ConsumerReferenceDocument.type.getDocumentElementName(),refParams);
+            first = consumerElem.findFirst();
+            String consumerAddr;
+            if (first.isPresent()) {
+                EndpointReferenceType ref = (EndpointReferenceType) first.get();
+                consumerAddr = ref.getAddress().getStringValue();
+            }
+            else {
+                throw new SubscribeFailedException("No consumerAddr id in response");
+            }
+
+
+            return new SubscriptionProperties(deliveryMethod, subId, queue, consumerAddr);
         } catch (IOException | XmlException ex) {
             throw new SubscribeFailedException(ex.getMessage(), ex);
         }
