@@ -22,7 +22,7 @@
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                             <children>
-                                <TextField fx:id="pubSubServer" layoutX="14.0" layoutY="14.0" prefHeight="26.0" prefWidth="570.0" text="http://ows.dev.52north.org:8080/subverse-webapp/service" />
+                                <TextField fx:id="pubSubServer" layoutX="14.0" layoutY="14.0" prefHeight="26.0" prefWidth="570.0" text="http://localhost:8080/subverse-webapp/service" />
                                 <HBox layoutX="15.0" layoutY="43.523502349853516" spacing="5.0">
                                     <children>
                                         <Button fx:id="requestButton" mnemonicParsing="false" text="Request Metadata" />

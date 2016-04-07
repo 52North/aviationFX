@@ -1,5 +1,6 @@
 package org.n52.aviation.aviationfx;
 
+import aero.aixm.schema.x51.AirspaceDocument;
 import com.google.common.eventbus.Subscribe;
 import com.lynden.gmapsfx.GoogleMapView;
 import com.lynden.gmapsfx.MapComponentInitializedListener;
@@ -22,6 +23,7 @@ import com.lynden.gmapsfx.shapes.Polyline;
 import com.lynden.gmapsfx.shapes.PolylineOptions;
 import com.lynden.gmapsfx.shapes.Rectangle;
 import com.lynden.gmapsfx.shapes.RectangleOptions;
+import com.sun.media.jfxmedia.events.NewFrameEvent;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -41,6 +43,9 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import netscape.javascript.JSObject;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+import org.n52.aviation.aviationfx.consume.NewMessageEvent;
 import org.n52.aviation.aviationfx.subscribe.NewSubscriptionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -259,5 +264,18 @@ public class MainController implements Initializable, MapComponentInitializedLis
     @Subscribe
     public void onNewSubscription(NewSubscriptionEvent event) {
         this.subscriptionList.getItems().add(event.getProperties().getId());
+    }
+
+    @Subscribe
+    public void onNewMessage(NewMessageEvent event) {
+        try {
+            XmlObject xo = XmlObject.Factory.parse(event.getMessage().toString());
+
+            if (xo instanceof AirspaceDocument) {
+                LOG.info("Got Airspace!");
+            }
+        } catch (XmlException ex) {
+            LOG.warn("Could not parse message", ex);
+        }
     }
 }

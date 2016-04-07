@@ -1,5 +1,7 @@
 package org.n52.aviation.aviationfx.subscribe;
 
+import com.google.common.base.MoreObjects;
+
 /**
  *
  * @author Matthes Rieke m.rieke@52north.org
@@ -33,5 +35,16 @@ public class SubscriptionProperties {
     public String getEndpointParameter() {
         return endpointParameter;
     }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", id)
+                .add("deliveryMethod", deliveryMethod)
+                .add("endpointParameter", endpointParameter)
+                .add("address", address).toString();
+    }
+
+
 
 }

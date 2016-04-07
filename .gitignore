@@ -12,3 +12,4 @@ nbactions.xml
 .nb-gradle/
 nb-configuration.xml
 
+logs/
