@@ -10,13 +10,11 @@ public class SubscriptionProperties {
 
     private final String deliveryMethod;
     private final String id;
-    private final String endpointParameter;
     private final String address;
 
-    public SubscriptionProperties(String deliveryMethod, String id, String endpointParameter, String address) {
+    public SubscriptionProperties(String deliveryMethod, String id, String address) {
         this.deliveryMethod = deliveryMethod;
         this.id = id;
-        this.endpointParameter = endpointParameter;
         this.address = address;
     }
 
@@ -32,16 +30,12 @@ public class SubscriptionProperties {
         return id;
     }
 
-    public String getEndpointParameter() {
-        return endpointParameter;
-    }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("id", id)
                 .add("deliveryMethod", deliveryMethod)
-                .add("endpointParameter", endpointParameter)
                 .add("address", address).toString();
     }
 

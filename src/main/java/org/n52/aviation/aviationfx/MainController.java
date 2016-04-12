@@ -1,12 +1,15 @@
 package org.n52.aviation.aviationfx;
 
 import aero.aixm.schema.x51.AirspaceDocument;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.eventbus.Subscribe;
 import com.lynden.gmapsfx.GoogleMapView;
 import com.lynden.gmapsfx.MapComponentInitializedListener;
 import com.lynden.gmapsfx.javascript.event.UIEventType;
-import com.lynden.gmapsfx.javascript.object.Animation;
 import com.lynden.gmapsfx.javascript.object.GoogleMap;
+import com.lynden.gmapsfx.javascript.object.InfoWindow;
+import com.lynden.gmapsfx.javascript.object.InfoWindowOptions;
 import com.lynden.gmapsfx.javascript.object.LatLong;
 import com.lynden.gmapsfx.javascript.object.LatLongBounds;
 import com.lynden.gmapsfx.javascript.object.MVCArray;
@@ -19,23 +22,20 @@ import com.lynden.gmapsfx.shapes.Circle;
 import com.lynden.gmapsfx.shapes.CircleOptions;
 import com.lynden.gmapsfx.shapes.Polygon;
 import com.lynden.gmapsfx.shapes.PolygonOptions;
-import com.lynden.gmapsfx.shapes.Polyline;
-import com.lynden.gmapsfx.shapes.PolylineOptions;
 import com.lynden.gmapsfx.shapes.Rectangle;
 import com.lynden.gmapsfx.shapes.RectangleOptions;
-import com.sun.media.jfxmedia.events.NewFrameEvent;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -45,6 +45,7 @@ import javafx.stage.Stage;
 import netscape.javascript.JSObject;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.n52.amqp.ContentType;
 import org.n52.aviation.aviationfx.consume.NewMessageEvent;
 import org.n52.aviation.aviationfx.subscribe.NewSubscriptionEvent;
 import org.slf4j.Logger;
@@ -73,8 +74,9 @@ public class MainController implements Initializable, MapComponentInitializedLis
     private ListView<String> subscriptionList;
 
     private GoogleMap map;
-    private MarkerOptions markerOptions2;
-    private Marker myMarker2;
+
+    private Map<String, Marker> aircraftMarkers = new HashMap<>();
+    private String windowBaseLocation;
 
     @Override
     public void mapInitialized() {
@@ -100,25 +102,6 @@ public class MainController implements Initializable, MapComponentInitializedLis
 
         map.setHeading(123.2);
 
-        MarkerOptions markerOptions = new MarkerOptions();
-        LatLong markerLatLong = new LatLong(47.606189, -122.335842);
-        markerOptions.position(markerLatLong)
-                .title("My new Marker")
-                .animation(Animation.DROP)
-                .visible(true);
-
-        final Marker myMarker = new Marker(markerOptions);
-
-        markerOptions2 = new MarkerOptions();
-        LatLong markerLatLong2 = new LatLong(47.906189, -122.335842);
-        markerOptions2.position(markerLatLong2)
-                .title("My new Marker")
-                .visible(true);
-
-        myMarker2 = new Marker(markerOptions2);
-
-        map.addMarker(myMarker);
-        map.addMarker(myMarker2);
 
 //        InfoWindowOptions infoOptions = new InfoWindowOptions();
 //        infoOptions.content("<h2>Here's an info window</h2><h3>with some info</h3>")
@@ -126,21 +109,6 @@ public class MainController implements Initializable, MapComponentInitializedLis
 //
 //        InfoWindow window = new InfoWindow(infoOptions);
 //        window.open(map, myMarker);
-//        map.fitBounds(new LatLongBounds(new LatLong(30, 120), center));
-        LatLong[] ary = new LatLong[]{markerLatLong, markerLatLong2};
-        MVCArray mvc = new MVCArray(ary);
-
-        PolylineOptions polyOpts = new PolylineOptions()
-                .path(mvc)
-                .strokeColor("red")
-                .strokeWeight(2);
-
-        Polyline poly = new Polyline(polyOpts);
-        map.addMapShape(poly);
-        map.addUIEventHandler(poly, UIEventType.click, (JSObject obj) -> {
-            LatLong ll = new LatLong((JSObject) obj.getMember("latLng"));
-            System.out.println(ll.toString());
-        });
 
         LatLong poly1 = new LatLong(47.429945, -122.84363);
         LatLong poly2 = new LatLong(47.361153, -123.03040);
@@ -210,17 +178,14 @@ public class MainController implements Initializable, MapComponentInitializedLis
             arc.setEditable(!arc.getEditable());
         });
 
-    }
+        map.addUIEventHandler(UIEventType.click, h -> {
+            Object result = h.eval("window.location");
+            LOG.warn("window.location="+result);
+        });
 
-
-    private void hideMarker() {
-        boolean visible = myMarker2.getVisible();
-        myMarker2.setVisible(! visible);
-    }
-
-    private void deleteMarker() {
-        //System.out.println("Marker was removed?");
-        map.removeMarker(myMarker2);
+        String result = map.getJSObject().eval("window.location").toString();
+        this.windowBaseLocation = result.substring(0, result.lastIndexOf("/"));
+        LOG.info("window base location: "+windowBaseLocation);
     }
 
     private void checkCenter(LatLong center) {
@@ -268,14 +233,118 @@ public class MainController implements Initializable, MapComponentInitializedLis
 
     @Subscribe
     public void onNewMessage(NewMessageEvent event) {
-        try {
-            XmlObject xo = XmlObject.Factory.parse(event.getMessage().toString());
+        ContentType ct = event.getContentType().orElse(new ContentType("application/xml"));
 
-            if (xo instanceof AirspaceDocument) {
-                LOG.info("Got Airspace!");
+        if (ct.getName().equals("application/xml")) {
+            try {
+                XmlObject xo = XmlObject.Factory.parse(event.getMessage().toString());
+
+                if (xo instanceof AirspaceDocument) {
+                    LOG.info("Got Airspace!");
+                }
+            } catch (XmlException ex) {
+                LOG.warn("Could not parse message", ex);
             }
-        } catch (XmlException ex) {
-            LOG.warn("Could not parse message", ex);
         }
+        else if (ct.getName().equals("application/json")) {
+            LOG.info("New JSON data: "+event.getMessage());
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                JsonNode json = mapper.readTree(event.getMessage().toString());
+                if (json.has("hex") && json.has("lat")) {
+                    //new ADS-B json
+                    final String hex = json.get("hex").asText();
+                    double lat = json.get("lat").asDouble();
+                    double lon = json.get("lon").asDouble();
+                    int heading = json.get("track").asInt();
+
+                    Platform.runLater(() -> {
+                        Marker m = null;
+                        LatLong markerLatLong = new LatLong(lat, lon);
+
+                        synchronized (MainController.this) {
+                            if (aircraftMarkers.containsKey(hex)) {
+                                m = aircraftMarkers.get(hex);
+                                m.setPosition(markerLatLong);
+                                MarkerOptions markerOptions = new MarkerOptions();
+                                markerOptions.position(markerLatLong)
+                                    .title(json.get("hex").asText())
+                                    .icon(windowBaseLocation+"/markers/aircraft_red_"+determineDirection(heading)+".png")
+                                    .visible(true);
+                                m.setOptions(markerOptions);
+                                LOG.info("marker updated!");
+                                if (isWithinBounds(markerLatLong, map.getBounds())) {
+                                    map.setZoom(map.getZoom()-1);
+                                    map.setZoom(map.getZoom()+1);
+                                }
+                            }
+                        }
+
+                        if (m == null) {
+                            MarkerOptions markerOptions = new MarkerOptions();
+                            markerOptions.position(markerLatLong)
+                                    .title(json.get("hex").asText())
+                                    .icon(windowBaseLocation+"/markers/aircraft_red"+determineDirection(heading)+".png")
+                                    .visible(true);
+                            m = new Marker(markerOptions);
+                            map.addMarker(m);
+
+                            //popup
+                            InfoWindowOptions infoOptions = new InfoWindowOptions();
+                            infoOptions.content("<h3>"+hex+"</h3>");
+
+                            InfoWindow window = new InfoWindow(infoOptions);
+
+                            map.addUIEventHandler(m, UIEventType.click, (JSObject obj) -> {
+                                window.open(map, aircraftMarkers.get(hex));
+                            });
+
+                            synchronized (MainController.this) {
+                                aircraftMarkers.put(hex, m);
+                            }
+                            LOG.info("marker added!");
+                        }
+
+                    });
+                }
+            } catch (IOException | RuntimeException ex) {
+                LOG.warn(ex.getMessage(), ex);
+            }
+        }
+
+    }
+
+    private boolean isWithinBounds(LatLong p, LatLongBounds bounds) {
+        LatLong ne = bounds.getNorthEast();
+        LatLong sw = bounds.getSouthWest();
+
+        return p.getLatitude() < ne.getLatitude() && p.getLongitude() < ne.getLongitude()
+                && p.getLatitude() > sw.getLatitude() && p.getLongitude() > sw.getLongitude();
+    }
+
+    private String determineDirection(int heading) {
+        int delta = 22;
+        if (heading >= 315+delta) {
+            return "n";
+        }
+        if (heading >= 270+delta) {
+            return "nw";
+        }
+        if (heading >= 225+delta) {
+            return "w";
+        }
+        if (heading >= 180+delta) {
+            return "sw";
+        }
+        if (heading >= 135+delta) {
+            return "s";
+        }
+        if (heading >= 90+delta) {
+            return "se";
+        }
+        if (heading >= 45+delta) {
+            return "e";
+        }
+        return "ne";
     }
 }

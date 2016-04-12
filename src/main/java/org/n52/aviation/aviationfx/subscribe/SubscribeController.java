@@ -18,7 +18,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
-import javax.xml.namespace.QName;
 import net.opengis.pubsub.x10.DeliveryMethodDocument;
 import net.opengis.pubsub.x10.DeliveryMethodType;
 import net.opengis.pubsub.x10.PublicationIdentifierDocument;
@@ -225,16 +224,6 @@ public class SubscribeController implements Initializable {
                 throw new SubscribeFailedException("No subscription id in response");
             }
 
-            Stream<XmlObject> queueElem = XmlBeansHelper.findChildren(new QName("http://52north.org/pubsub/amqp-10-delivery", "queue"),refParams);
-            first = queueElem.findFirst();
-            String queue;
-            if (first.isPresent()) {
-                queue = XmlBeansHelper.extractStringContent(first.get());
-            }
-            else {
-                throw new SubscribeFailedException("No queue id in response");
-            }
-
             Stream<XmlObject> consumerElem = XmlBeansHelper.findChildren(ConsumerReferenceDocument.type.getDocumentElementName(),refParams);
             first = consumerElem.findFirst();
             String consumerAddr;
@@ -247,7 +236,7 @@ public class SubscribeController implements Initializable {
             }
 
 
-            return new SubscriptionProperties(deliveryMethod, subId, queue, consumerAddr);
+            return new SubscriptionProperties(deliveryMethod, subId, consumerAddr);
         } catch (IOException | XmlException ex) {
             throw new SubscribeFailedException(ex.getMessage(), ex);
         }
