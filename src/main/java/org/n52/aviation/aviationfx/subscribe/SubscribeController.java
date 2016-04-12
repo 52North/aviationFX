@@ -18,6 +18,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
+import javax.xml.namespace.QName;
 import net.opengis.pubsub.x10.DeliveryMethodDocument;
 import net.opengis.pubsub.x10.DeliveryMethodType;
 import net.opengis.pubsub.x10.PublicationIdentifierDocument;
@@ -82,6 +83,7 @@ public class SubscribeController implements Initializable {
 
     private Map<String, String> publicationsMap = new HashMap<>();
     private Map<String, String> deliveryMethodsMap = new HashMap<>();
+    private String amqpDefaultBroker;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -151,6 +153,16 @@ public class SubscribeController implements Initializable {
                 String id = dm.getIdentifier();
                 deliveryMethod.getItems().add(id);
                 deliveryMethodsMap.put(id, abstr);
+
+                //TODO: implement cleaner way
+                if (dm.getExtensionArray() != null) {
+                    for (XmlObject ext : dm.getExtensionArray()) {
+                        Optional<XmlObject> child = XmlBeansHelper.findFirstChild(new QName("http://52north.org/pubsub/amqp-10-delivery", "defaultHost"), ext);
+                        if (child.isPresent()) {
+                            this.amqpDefaultBroker = XmlBeansHelper.extractStringContent(child.get());
+                        }
+                    }
+                }
             }
 
             deliveryMethod.valueProperty().addListener(e -> {
@@ -183,7 +195,7 @@ public class SubscribeController implements Initializable {
 
         EndpointReferenceType conRef = sub.addNewConsumerReference();
         AttributedURIType addr = conRef.addNewAddress();
-        addr.setStringValue("localhost");
+        addr.setStringValue(amqpDefaultBroker != null ? amqpDefaultBroker : "localhost");
 
         PublicationIdentifierDocument pubIdDoc = PublicationIdentifierDocument.Factory.newInstance();
         pubIdDoc.setPublicationIdentifier(pubId);
@@ -234,7 +246,6 @@ public class SubscribeController implements Initializable {
             else {
                 throw new SubscribeFailedException("No consumerAddr id in response");
             }
-
 
             return new SubscriptionProperties(deliveryMethod, subId, consumerAddr);
         } catch (IOException | XmlException ex) {

@@ -256,7 +256,7 @@ public class MainController implements Initializable, MapComponentInitializedLis
                     final String hex = json.get("hex").asText();
                     double lat = json.get("lat").asDouble();
                     double lon = json.get("lon").asDouble();
-                    int heading = json.get("track").asInt();
+                    int heading = json.has("track") ? json.get("track").asInt() : 0;
 
                     Platform.runLater(() -> {
                         Marker m = null;
