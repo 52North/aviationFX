@@ -72,10 +72,10 @@ public class XmlBeansHelper {
         return Optional.ofNullable(result);
     }
 
-    public static void insertChild(XmlObject refParams, XmlObject subIdDoc) {
-        XmlCursor cur = refParams.newCursor();
+    public static void insertChild(XmlObject parent, XmlObject child) {
+        XmlCursor cur = parent.newCursor();
         cur.toFirstContentToken();
-        XmlCursor tmpCur = subIdDoc.newCursor();
+        XmlCursor tmpCur = child.newCursor();
         tmpCur.toFirstChild();
         tmpCur.copyXml(cur);
         tmpCur.dispose();

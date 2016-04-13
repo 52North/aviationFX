@@ -29,7 +29,7 @@ public class AmqpConsumer {
 
     @Subscribe
     public synchronized void onNewSubscription(NewSubscriptionEvent event) {
-        if (event.getProperties().getDeliveryMethod().equals("amqp10")) {
+        if (event.getProperties().getDeliveryMethod().equals("https://docs.oasis-open.org/amqp/core/v1.0")) {
             try {
                 this.subscriptions.put(event.getProperties().getId(), createClient(event.getProperties()));
                 LOG.info("New AMQP consumer: {}", event.getProperties());
@@ -66,6 +66,8 @@ public class AmqpConsumer {
                                     n.getContentType().orElse(ContentType.TEXT_PLAIN)));
                         }
                     });
+
+            LOG.info("Subscribed to {}", properties.getAddress());
 
             return conn;
         } catch (URISyntaxException | AmqpConnectionCreationFailedException ex) {

@@ -11,11 +11,13 @@ public class SubscriptionProperties {
     private final String deliveryMethod;
     private final String id;
     private final String address;
+    private final String pubSubHost;
 
-    public SubscriptionProperties(String deliveryMethod, String id, String address) {
+    public SubscriptionProperties(String deliveryMethod, String id, String address, String pubSubHost) {
         this.deliveryMethod = deliveryMethod;
         this.id = id;
         this.address = address;
+        this.pubSubHost = pubSubHost;
     }
 
     public String getAddress() {
@@ -30,13 +32,19 @@ public class SubscriptionProperties {
         return id;
     }
 
+    public String getPubSubHost() {
+        return pubSubHost;
+    }
+
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("id", id)
                 .add("deliveryMethod", deliveryMethod)
-                .add("address", address).toString();
+                .add("address", address)
+                .add("pubSubHost", pubSubHost)
+                .toString();
     }
 
 

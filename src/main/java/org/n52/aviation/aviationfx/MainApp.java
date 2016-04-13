@@ -1,5 +1,6 @@
 package org.n52.aviation.aviationfx;
 
+import com.sun.javafx.stage.StageHelper;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.fxml.FXMLLoader;
@@ -7,14 +8,19 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.n52.aviation.aviationfx.consume.AmqpConsumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class MainApp extends Application {
 
+    private static final Logger LOG = LoggerFactory.getLogger(MainApp.class);
     private AmqpConsumer amqpConsumer;
+    private Stage mainStage;
 
     @Override
     public void start(Stage stage) throws Exception {
+        this.mainStage = stage;
         initEventBusComponents();
 
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/Scene.fxml"));
@@ -25,13 +31,19 @@ public class MainApp extends Application {
         stage.setTitle("52°North aviationFX");
         stage.setScene(scene);
         stage.show();
+
     }
 
     @Override
     public void stop() throws Exception {
         this.amqpConsumer.shutdown();
+        if (this.mainStage != null) {
+            this.mainStage.close();
+        }
+        else {
+            LOG.warn("Stage is already null!");
+        }
     }
-
 
 
     /**

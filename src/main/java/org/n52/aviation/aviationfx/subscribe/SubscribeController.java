@@ -157,7 +157,7 @@ public class SubscribeController implements Initializable {
                 //TODO: implement cleaner way
                 if (dm.getExtensionArray() != null) {
                     for (XmlObject ext : dm.getExtensionArray()) {
-                        Optional<XmlObject> child = XmlBeansHelper.findFirstChild(new QName("http://52north.org/pubsub/amqp-10-delivery", "defaultHost"), ext);
+                        Optional<XmlObject> child = XmlBeansHelper.findFirstChild(new QName("http://www.opengis.net/pubsub/1.0/amqp/v1.0", "defaultHost"), ext);
                         if (child.isPresent()) {
                             this.amqpDefaultBroker = XmlBeansHelper.extractStringContent(child.get());
                         }
@@ -218,10 +218,23 @@ public class SubscribeController implements Initializable {
             post.setHeader("Content-Type", "application/soap+xml");
 
             CloseableHttpResponse resp = c.execute(post);
-            envDoc = EnvelopeDocument.Factory.parse(resp.getEntity().getContent());
+            XmlObject xo = XmlObject.Factory.parse(resp.getEntity().getContent());
+            if (!(xo instanceof EnvelopeDocument)) {
+                LOG.warn("Could not process response: "+xo.xmlText());
+                throw new SubscribeFailedException("Could not process response: "+xo.xmlText());
+            }
+
+            envDoc = (EnvelopeDocument) xo;
             XmlCursor cur = envDoc.getEnvelope().getBody().newCursor();
             cur.toFirstChild();
-            SubscribeResponse subRespDoc = (SubscribeResponse) cur.getObject();
+            XmlObject respBody = cur.getObject();
+
+            if (!(respBody instanceof SubscribeResponse)) {
+                LOG.warn("Not a valid subscribe response: "+xo.xmlText());
+                throw new SubscribeFailedException("Not a valid subscribe response: "+xo.xmlText());
+            }
+
+            SubscribeResponse subRespDoc = (SubscribeResponse) respBody;
 
             //TODO parse the subID
             ReferenceParametersType refParams = subRespDoc.getSubscriptionReference().getReferenceParameters();
@@ -247,7 +260,7 @@ public class SubscribeController implements Initializable {
                 throw new SubscribeFailedException("No consumerAddr id in response");
             }
 
-            return new SubscriptionProperties(deliveryMethod, subId, consumerAddr);
+            return new SubscriptionProperties(deliveryMethod, subId, consumerAddr, host);
         } catch (IOException | XmlException ex) {
             throw new SubscribeFailedException(ex.getMessage(), ex);
         }
