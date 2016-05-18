@@ -2,15 +2,12 @@ package org.n52.aviation.aviationfx;
 
 import com.google.common.eventbus.Subscribe;
 import com.lynden.gmapsfx.GoogleMapView;
-import static com.sun.javafx.animation.TickCalculation.sub;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -28,14 +25,14 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
-import net.opengis.pubsub.x10.DeliveryMethodDocument;
-import net.opengis.pubsub.x10.DeliveryMethodType;
-import net.opengis.pubsub.x10.PublicationIdentifierDocument;
 import net.opengis.pubsub.x10.SubscriptionIdentifierDocument;
-import net.opengis.pubsub.x10.UnsubscribeResponseDocument;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.xmlbeans.XmlCursor;
@@ -46,20 +43,13 @@ import org.n52.aviation.aviationfx.consume.NewMessageEvent;
 import org.n52.aviation.aviationfx.maps.GMapsMapComponent;
 import org.n52.aviation.aviationfx.maps.MapComponent;
 import org.n52.aviation.aviationfx.subscribe.NewSubscriptionEvent;
-import org.n52.aviation.aviationfx.subscribe.SubscribeFailedException;
 import org.n52.aviation.aviationfx.subscribe.SubscriptionProperties;
-import org.oasisOpen.docs.wsn.b2.ConsumerReferenceDocument;
-import org.oasisOpen.docs.wsn.b2.SubscribeDocument;
-import org.oasisOpen.docs.wsn.b2.SubscribeResponseDocument;
 import org.oasisOpen.docs.wsn.b2.UnsubscribeDocument;
 import org.oasisOpen.docs.wsn.b2.UnsubscribeResponseDocument.UnsubscribeResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3.x2003.x05.soapEnvelope.Body;
 import org.w3.x2003.x05.soapEnvelope.EnvelopeDocument;
-import org.w3.x2005.x08.addressing.AttributedURIType;
-import org.w3.x2005.x08.addressing.EndpointReferenceType;
-import org.w3.x2005.x08.addressing.ReferenceParametersType;
 
 public class MainController implements Initializable {
 
@@ -196,8 +186,12 @@ public class MainController implements Initializable {
         Body body = envDoc.addNewEnvelope().addNewBody();
         body.set(unsubDoc);
 
-        try (CloseableHttpClient c = HttpClientBuilder.create().build()) {
-            HttpPost post = new HttpPost(props.getPubSubHost());
+        HttpPost post = new HttpPost(props.getPubSubHost());
+
+        CredentialsProvider credProv = checkCredentialsProvider(post, props);
+
+        try (CloseableHttpClient c = HttpClientBuilder.create().setDefaultCredentialsProvider(credProv).build()) {
+
             post.setEntity(new StringEntity(envDoc.xmlText(new XmlOptions().setSavePrettyPrint())));
             post.setHeader("Content-Type", "application/soap+xml");
 
@@ -226,6 +220,21 @@ public class MainController implements Initializable {
         } catch (IOException | XmlException ex) {
             throw new RuntimeException(ex.getMessage(), ex);
         }
+    }
+
+    private CredentialsProvider checkCredentialsProvider(HttpPost hrb, SubscriptionProperties props) {
+        if (props.getAuthentication() != null) {
+            String user = props.getAuthentication().getUser();
+            String pw = props.getAuthentication().getPassword();
+
+            CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+            credentialsProvider.setCredentials(new AuthScope(hrb.getURI().getHost(), hrb.getURI().getPort()),
+                    new UsernamePasswordCredentials(user, pw));
+
+            return credentialsProvider;
+        }
+
+        return null;
     }
 
 }

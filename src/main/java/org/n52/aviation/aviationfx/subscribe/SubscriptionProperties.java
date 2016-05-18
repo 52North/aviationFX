@@ -12,6 +12,7 @@ public class SubscriptionProperties {
     private final String id;
     private final String address;
     private final String pubSubHost;
+    private Authentication authentication;
 
     public SubscriptionProperties(String deliveryMethod, String id, String address, String pubSubHost) {
         this.deliveryMethod = deliveryMethod;
@@ -36,6 +37,9 @@ public class SubscriptionProperties {
         return pubSubHost;
     }
 
+    public void setAuthentication(Authentication authentication) {
+        this.authentication = authentication;
+    }
 
     @Override
     public String toString() {
@@ -45,6 +49,10 @@ public class SubscriptionProperties {
                 .add("address", address)
                 .add("pubSubHost", pubSubHost)
                 .toString();
+    }
+
+    public Authentication getAuthentication() {
+        return this.authentication;
     }
 
 

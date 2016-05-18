@@ -2,6 +2,8 @@ package org.n52.aviation.aviationfx.subscribe;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Base64;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -25,12 +27,23 @@ import net.opengis.pubsub.x10.PublicationIdentifierDocument;
 import net.opengis.pubsub.x10.PublicationType;
 import net.opengis.pubsub.x10.PublisherCapabilitiesDocument;
 import net.opengis.pubsub.x10.SubscriptionIdentifierDocument;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -66,6 +79,10 @@ public class SubscribeController implements Initializable {
     private ComboBox<String> publication;
     @FXML
     private TextField pubSubServer;
+    @FXML
+    private TextField authUser;
+    @FXML
+    private TextField authPassword;
     @FXML
     private ProgressIndicator requestProgress;
     @FXML
@@ -123,9 +140,11 @@ public class SubscribeController implements Initializable {
                 String serverUrl = pubSubServer.getText();
 
                 serverUrl = serverUrl.concat("?service=PubSub&request=GetCapabilities");
-                try (CloseableHttpClient c = HttpClientBuilder.create().build()) {
-                    HttpGet get = new HttpGet(serverUrl);
 
+                HttpGet get = new HttpGet(serverUrl);
+                CredentialsProvider credsProvider = checkAndSetAuthentication(get);
+
+                try (CloseableHttpClient c = HttpClientBuilder.create().setDefaultCredentialsProvider(credsProvider).build()) {
                     CloseableHttpResponse resp = c.execute(get);
                     PublisherCapabilitiesDocument pubCapDoc = PublisherCapabilitiesDocument.Factory.parse(resp.getEntity().getContent());
 
@@ -143,6 +162,21 @@ public class SubscribeController implements Initializable {
             }).start();
 
         });
+    }
+
+    public CredentialsProvider checkAndSetAuthentication(HttpRequestBase hrb) {
+        if (!authUser.getText().isEmpty()) {
+            String user = authUser.getText().trim();
+            String pw = authPassword.getText().trim();
+
+            CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+            credentialsProvider.setCredentials(new AuthScope(hrb.getURI().getHost(), hrb.getURI().getPort()),
+                new UsernamePasswordCredentials(user, pw));
+
+            return credentialsProvider;
+        }
+
+        return null;
     }
 
     private void updateDeliveryMethods(PublisherCapabilitiesDocument pubCapDoc) {
@@ -193,6 +227,8 @@ public class SubscribeController implements Initializable {
         SubscribeDocument subDoc = SubscribeDocument.Factory.newInstance();
         SubscribeDocument.Subscribe sub = subDoc.addNewSubscribe();
 
+        sub.setInitialTerminationTime(new Date(System.currentTimeMillis() + 30000));
+
         EndpointReferenceType conRef = sub.addNewConsumerReference();
         AttributedURIType addr = conRef.addNewAddress();
         addr.setStringValue(amqpDefaultBroker != null ? amqpDefaultBroker : "localhost");
@@ -212,8 +248,10 @@ public class SubscribeController implements Initializable {
         Body body = envDoc.addNewEnvelope().addNewBody();
         body.set(subDoc);
 
-        try (CloseableHttpClient c = HttpClientBuilder.create().build()) {
-            HttpPost post = new HttpPost(host);
+        HttpPost post = new HttpPost(host);
+        CredentialsProvider credProv = checkAndSetAuthentication(post);
+
+        try (CloseableHttpClient c = HttpClientBuilder.create().setDefaultCredentialsProvider(credProv).build()) {
             post.setEntity(new StringEntity(envDoc.xmlText(new XmlOptions().setSavePrettyPrint())));
             post.setHeader("Content-Type", "application/soap+xml");
 
@@ -260,7 +298,14 @@ public class SubscribeController implements Initializable {
                 throw new SubscribeFailedException("No consumerAddr id in response");
             }
 
-            return new SubscriptionProperties(deliveryMethod, subId, consumerAddr, host);
+            SubscriptionProperties subProps = new SubscriptionProperties(deliveryMethod, subId, consumerAddr, host);
+            Authentication auth = null;
+            if (credProv != null) {
+                Credentials creds = credProv.getCredentials(new AuthScope(post.getURI().getHost(), post.getURI().getPort()));
+                subProps.setAuthentication(new Authentication(creds.getUserPrincipal().getName(), creds.getPassword()));
+            }
+
+            return subProps;
         } catch (IOException | XmlException ex) {
             throw new SubscribeFailedException(ex.getMessage(), ex);
         }

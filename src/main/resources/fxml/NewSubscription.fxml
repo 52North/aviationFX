@@ -9,6 +9,7 @@
 <?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
@@ -23,19 +24,29 @@
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                             <children>
                                 <TextField fx:id="pubSubServer" layoutX="14.0" layoutY="14.0" prefHeight="26.0" prefWidth="570.0" text="http://ows.dev.52north.org:8080/subverse-webapp/service" />
-                                <HBox layoutX="15.0" layoutY="43.523502349853516" spacing="5.0">
-                                    <children>
+                        <HBox layoutX="14.0" layoutY="50.0">
+                           <children>
+                              <TextField fx:id="authUser" promptText="user" />
+                              <PasswordField fx:id="authPassword" accessibleRole="PASSWORD_FIELD" promptText="password">
+                                 <HBox.margin>
+                                    <Insets left="8.0" />
+                                 </HBox.margin>
+                              </PasswordField>
+                           </children>
+                        </HBox>
+                        <HBox layoutX="15.0" layoutY="83.0" prefHeight="0.0" prefWidth="283.0">
+                           <children>
                                         <Button fx:id="requestButton" mnemonicParsing="false" text="Request Metadata" />
-                                        <ProgressIndicator fx:id="requestProgress" prefHeight="24.0" prefWidth="24.0" visible="false" />
-                                    </children>
-                                </HBox>
-                                <Group fx:id="publicationGroup" layoutX="14.0" layoutY="80.0">
+                                        <ProgressIndicator fx:id="requestProgress" prefHeight="26.0" prefWidth="25.0" visible="false" />
+                           </children>
+                        </HBox>
+                                <Group fx:id="publicationGroup" layoutX="16.0" layoutY="117.0">
                                     <children>
-                                        <ComboBox fx:id="publication" disable="true" layoutY="16.0" prefHeight="26.0" prefWidth="570.0" />
-                                        <Label text="Publication:" />
+                                        <Label layoutX="4.0" layoutY="12.0" text="Publication:" />
+                                        <ComboBox fx:id="publication" disable="true" layoutX="3.0" layoutY="33.0" prefHeight="26.0" prefWidth="570.0" />
+                              <Label fx:id="publicationAbstract" alignment="TOP_LEFT" layoutX="2.0" layoutY="66.0" prefHeight="48.0" prefWidth="570.0" />
                                     </children>
                                 </Group>
-                        <Label fx:id="publicationAbstract" alignment="TOP_LEFT" layoutX="14.0" layoutY="130.0" prefHeight="48.0" prefWidth="570.0" />
                             </children>
                         </AnchorPane>
                     </content>
