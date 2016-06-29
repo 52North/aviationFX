@@ -1,0 +1,205 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<message:AIXMBasicMessage xmlns:message="http://www.aixm.aero/schema/5.1/message" xmlns:gts="http://www.isotc211.org/2005/gts" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:gss="http://www.isotc211.org/2005/gss" xmlns:aixm="http://www.aixm.aero/schema/5.1" xmlns:gsr="http://www.isotc211.org/2005/gsr" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:event="http://www.aixm.aero/schema/5.1/event" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.aixm.aero/schema/5.1/message http://www.aixm.aero/schema/5.1/message/AIXM_BasicMessage.xsd http://www.aixm.aero/schema/5.1/event http://www.aixm.aero/schema/5.1/event/version_5.1-e/Event_Features.xsd" gml:id="M00001">
+  <message:hasMember>
+    <event:Event gml:id="uuid.cc1bdbc7-476c-4b04-81c0-8f5e7ccb454b">
+      <gml:identifier codeSpace="urn:uuid:">cc1bdbc7-476c-4b04-81c0-8f5e7ccb454b</gml:identifier>
+      <event:timeSlice>
+        <event:EventTimeSlice gml:id="ID_51">
+          <gml:validTime>
+            <gml:TimeInstant gml:id="ID_52">
+              <gml:timePosition>2016-08-28T06:00:00Z</gml:timePosition>
+            </gml:TimeInstant>
+          </gml:validTime>
+          <aixm:interpretation>PERMDELTA</aixm:interpretation>
+          <aixm:sequenceNumber>1</aixm:sequenceNumber>
+          <aixm:featureLifetime>
+            <gml:TimePeriod gml:id="ID_53">
+              <gml:beginPosition>2016-08-28T06:00:00Z</gml:beginPosition>
+              <gml:endPosition>2016-08-30T22:30:00Z</gml:endPosition>
+            </gml:TimePeriod>
+          </aixm:featureLifetime>
+          <event:name>EBD04_20140630</event:name>
+          <event:encoding>DIGITAL</event:encoding>
+          <event:scenario>SAA.ACT</event:scenario>
+          <event:version>2.0</event:version>
+          <event:revision>2016-08-28T07:49:54</event:revision>
+          <event:textNOTAM>
+            <event:NOTAM gml:id="ID_54">
+              <event:text>DANGER AREA LEB04 LEBEC ACTIVE, FOREST FIRE</event:text>
+              <event:lowerLimit>SFC</event:lowerLimit>
+              <event:upperLimit>FL170</event:upperLimit>
+              <event:publisherNOF xlink:href="#uuid.6bdb97aa-3f04-41bc-ac10-64cede76b9ba" xlink:title="STATE NOTAM OFFICE" xsi:nil="true"/>
+            </event:NOTAM>
+          </event:textNOTAM>
+        </event:EventTimeSlice>
+      </event:timeSlice>
+      <event:timeSlice>
+        <event:EventTimeSlice gml:id="ID_56">
+          <gml:validTime>
+            <gml:TimePeriod gml:id="ID_57">
+              <gml:beginPosition>2016-08-28T06:00:00Z</gml:beginPosition>
+              <gml:endPosition>2016-08-30T22:30:00Z</gml:endPosition>
+            </gml:TimePeriod>
+          </gml:validTime>
+          <aixm:interpretation>BASELINE</aixm:interpretation>
+          <aixm:sequenceNumber>1</aixm:sequenceNumber>
+          <aixm:featureLifetime>
+            <gml:TimePeriod gml:id="ID_58">
+              <gml:beginPosition>2016-08-28T06:00:00Z</gml:beginPosition>
+              <gml:endPosition>2016-08-30T22:30:00Z</gml:endPosition>
+            </gml:TimePeriod>
+          </aixm:featureLifetime>
+          <event:name>LEB04_20160828</event:name>
+          <event:encoding>DIGITAL</event:encoding>
+          <event:scenario>SAA.ACT</event:scenario>
+          <event:version>2.0</event:version>
+          <event:revision>2016-08-28T07:49:54</event:revision>
+          <event:textNOTAM>
+            <event:NOTAM gml:id="ID_55">
+              <event:text>DANGER AREA LEB04 LEBEC ACTIVE, FOREST FIRE</event:text>
+              <event:lowerLimit>SFC</event:lowerLimit>
+              <event:upperLimit>FL170</event:upperLimit>
+              <event:publisherNOF xlink:href="#uuid.6bdb97aa-3f04-41bc-ac10-64cede76b9ba" xlink:title="STATE NOTAM OFFICE" xsi:nil="true"/>
+            </event:NOTAM>
+          </event:textNOTAM>
+        </event:EventTimeSlice>
+      </event:timeSlice>
+    </event:Event>
+  </message:hasMember>
+  <message:hasMember>
+    <aixm:Airspace gml:id="uuid.28e6905-f99a-4ca7-a736-2c0787cdcf57">
+      <gml:identifier codeSpace="urn:uuid:">028e6905-f99a-4ca7-a736-2c0787cdcf57</gml:identifier>
+      <aixm:timeSlice>
+        <aixm:AirspaceTimeSlice gml:id="ID_65">
+          <gml:validTime>
+            <gml:TimeInstant gml:id="ID_66">
+              <gml:timePosition>2016-08-28T07:49:54Z</gml:timePosition>
+            </gml:TimeInstant>
+          </gml:validTime>
+          <aixm:interpretation>SNAPSHOT</aixm:interpretation>
+          <aixm:type>D</aixm:type>
+          <aixm:designator>LEB04</aixm:designator>
+          <aixm:name>LEBEC</aixm:name>
+          <aixm:geometryComponent>
+            <aixm:AirspaceGeometryComponent gml:id="ID_67">
+              <aixm:operationSequence>1</aixm:operationSequence>
+              <aixm:theAirspaceVolume>
+                <aixm:AirspaceVolume gml:id="ID_68">
+                  <aixm:upperLimit uom="FL">170</aixm:upperLimit>
+                  <aixm:upperLimitReference>OTHER</aixm:upperLimitReference>
+                  <aixm:lowerLimit uom="FT">0</aixm:lowerLimit>
+                  <aixm:lowerLimitReference>SFC</aixm:lowerLimitReference>
+                  <aixm:horizontalProjection>
+                    <aixm:Surface srsName="urn:ogc:def:crs:EPSG::4326" gml:id="ID_69">
+                      <gml:patches>
+                        <gml:PolygonPatch>
+                          <gml:exterior>
+                            <gml:LinearRing>
+                              <gml:posList>34.54163119530972 -118.67980957031249
+                                34.420504880133834 -118.95996093749999
+                                34.4861839632883 -119.30465698242186
+                                34.92760087214065 -119.5147705078125
+                                35.08957427943165 -118.99291992187499
+                                34.88142481679758 -118.71826171875
+                                34.54163119530972 -118.67980957031249</gml:posList>
+                            </gml:LinearRing>
+                          </gml:exterior>
+                        </gml:PolygonPatch>
+                      </gml:patches>
+                    </aixm:Surface>
+                  </aixm:horizontalProjection>
+                </aixm:AirspaceVolume>
+              </aixm:theAirspaceVolume>
+            </aixm:AirspaceGeometryComponent>
+          </aixm:geometryComponent>
+        </aixm:AirspaceTimeSlice>
+      </aixm:timeSlice>
+      <aixm:timeSlice>
+        <aixm:AirspaceTimeSlice gml:id="ID_70">
+          <gml:validTime>
+            <gml:TimePeriod gml:id="ID_71">
+              <gml:beginPosition>2016-08-28T06:00:00Z</gml:beginPosition>
+              <gml:endPosition>2016-08-30T22:30:00Z</gml:endPosition>
+            </gml:TimePeriod>
+          </gml:validTime>
+          <aixm:interpretation>TEMPDELTA</aixm:interpretation>
+          <aixm:sequenceNumber>1</aixm:sequenceNumber>
+          <aixm:type>P</aixm:type> <!-- see coding rule referring to terms used in the information from originator that the area is prohibited -->
+          <aixm:activation>
+            <aixm:AirspaceActivation gml:id="ID_72">
+              <aixm:annotation>
+                <aixm:Note gml:id="ID_74">
+                  <aixm:purpose>REMARK</aixm:purpose>
+                  <aixm:translatedNote>
+                    <aixm:LinguisticNote gml:id="ID_75">
+                      <aixm:note>SAR activities during fire fighting</aixm:note>
+                    </aixm:LinguisticNote>
+                  </aixm:translatedNote>
+                </aixm:Note>
+              </aixm:annotation>
+              <aixm:annotation>
+                <aixm:Note gml:id="ID_76">
+                  <aixm:purpose>REMARK</aixm:purpose>
+                  <aixm:translatedNote>
+                    <aixm:LinguisticNote gml:id="ID_77">
+                      <aixm:note>Prohibited for all manned military and civilian aircraft during fire fighting activity.</aixm:note>
+                    </aixm:LinguisticNote>
+                  </aixm:translatedNote>
+                </aixm:Note>
+              </aixm:annotation>
+              <aixm:annotation>
+                <aixm:Note gml:id="ID_78">
+                  <aixm:purpose>REMARK</aixm:purpose>
+                  <aixm:translatedNote>
+                    <aixm:LinguisticNote gml:id="ID_79">
+                      <aixm:note>More info can be obtained via EBMIZGZF.</aixm:note>
+                    </aixm:LinguisticNote>
+                  </aixm:translatedNote>
+                </aixm:Note>
+              </aixm:annotation>
+              <aixm:activity>SAR</aixm:activity>
+              <aixm:status>ACTIVE</aixm:status>
+              <aixm:levels>
+                <aixm:AirspaceLayer gml:id="ID_73">
+                  <aixm:upperLimit uom="OTHER">CEILING</aixm:upperLimit>
+                  <aixm:lowerLimit uom="OTHER">FLOOR</aixm:lowerLimit>
+                </aixm:AirspaceLayer>
+              </aixm:levels>
+            </aixm:AirspaceActivation>
+          </aixm:activation>
+          <aixm:extension>
+            <event:AirspaceExtension gml:id="ID_80">
+              <event:theEvent xlink:href="#uuid.cc1bdbc7-476c-4b04-81c0-8f5e7ccb454b" xsi:nil="true"/>
+            </event:AirspaceExtension>
+          </aixm:extension>
+        </aixm:AirspaceTimeSlice>
+      </aixm:timeSlice>
+    </aixm:Airspace>
+  </message:hasMember>
+  <message:hasMember>
+    <aixm:Unit gml:id="uuid.uuid.6bdb97aa-3f04-41bc-ac10-64cede76b9ba">
+      <gml:identifier codeSpace="urn:uuid:">uuid.6bdb97aa-3f04-41bc-ac10-64cede76b9ba"</gml:identifier>
+      <aixm:timeSlice>
+        <aixm:UnitTimeSlice gml:id="ID_61">
+          <gml:validTime>
+            <gml:TimeInstant gml:id="ID_62">
+              <gml:timePosition>2016-08-28T07:49:54Z</gml:timePosition>
+            </gml:TimeInstant>
+          </gml:validTime>
+          <aixm:interpretation>SNAPSHOT</aixm:interpretation>
+          <aixm:name>STATE NOTAM OFFICE</aixm:name>
+          <aixm:type>NOF</aixm:type>
+          <aixm:contact>
+            <aixm:ContactInformation gml:id="ID_63">
+              <aixm:phoneFax>
+                <aixm:TelephoneContact gml:id="ID_64">
+                  <aixm:voice>(12) 345 67 89</aixm:voice>
+                </aixm:TelephoneContact>
+              </aixm:phoneFax>
+            </aixm:ContactInformation>
+          </aixm:contact>
+        </aixm:UnitTimeSlice>
+      </aixm:timeSlice>
+    </aixm:Unit>
+  </message:hasMember>
+</message:AIXMBasicMessage>

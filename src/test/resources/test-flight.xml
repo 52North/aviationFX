@@ -1,0 +1,122 @@
+<fx:Flight xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:fx="http://www.fixm.aero/flight/3.0" xmlns:fb="http://www.fixm.aero/base/3.0" xmlns:sdss="http://www.fixm.aero/ext/sdss/3.0" xmlns:ff="http://www.fixm.aero/foundation/3.0" xmlns:faa="http://www.fixm.aero/ext/faa/3.0" centre="ZNY" flightFiler="" flightType="NON_SCHEDULED" remarks="" source="CL" system="FDPS1" timestamp="2016-08-29T21:57:46.546Z">
+  <fx:agreed>
+    <fx:route routeText="GRD LBT 3500N/07400W 3726N/06937W 3745N/06720W 3900N/05000W 4000N/04000W DETOX BARDI UQ424 LUMAS UM985 STP ASTIG ASTI1H" flightDuration="PT50M0.000S" initialFlightRules="IFR">
+      <fx:expandedRoute>
+        <fx:routePoint estimatedTime="2016-08-29T21:01:00.000Z">
+          <fx:point xsi:type="fb:FixPointType" fix="LBT"/>
+        </fx:routePoint>
+        <fx:routePoint estimatedTime="2016-08-29T21:32:00.000Z">
+          <fx:point xsi:type="fb:LocationPointType">
+            <fb:location srsName="urn:ogc:def:crs:EPSG::4326">
+              <ff:pos>34.31281554905527 -118.89953613281249</ff:pos>
+            </fb:location>
+          </fx:point>
+        </fx:routePoint>
+        <fx:routePoint estimatedTime="2016-08-29T22:05:00.000Z">
+          <fx:point xsi:type="fb:LocationPointType">
+            <fb:location srsName="urn:ogc:def:crs:EPSG::4326">
+              <ff:pos>35.15135442846945 -119.38980102539062</ff:pos>
+            </fb:location>
+          </fx:point>
+        </fx:routePoint>
+      </fx:expandedRoute>
+      <fx:initialCruisingSpeed uom="KNOTS">480.0</fx:initialCruisingSpeed>
+      <fx:requestedAltitude ref="FLIGHT_LEVEL" uom="FEET">33000.0</fx:requestedAltitude>
+      <fx:segment>
+        <fx:routePoint>
+          <fx:point xsi:type="fb:FixPointType" fix="GRD"/>
+        </fx:routePoint>
+      </fx:segment>
+      <fx:segment>
+        <fx:routePoint>
+          <fx:point xsi:type="fb:FixPointType" fix="LBT"/>
+        </fx:routePoint>
+      </fx:segment>
+      <fx:segment>
+        <fx:routePoint>
+          <fx:point xsi:type="fb:LocationPointType">
+            <fb:location srsName="urn:ogc:def:crs:EPSG::4326">
+              <ff:pos>34.31281554905527 -118.89953613281249</ff:pos>
+            </fb:location>
+          </fx:point>
+        </fx:routePoint>
+      </fx:segment>
+      <fx:segment>
+        <fx:routePoint>
+          <fx:point xsi:type="fb:LocationPointType">
+            <fb:location srsName="urn:ogc:def:crs:EPSG::4326">
+              <ff:pos>34.6015631772409 -119.15222167968751</ff:pos>
+            </fb:location>
+          </fx:point>
+        </fx:routePoint>
+      </fx:segment>
+      <fx:segment>
+        <fx:routePoint>
+          <fx:point xsi:type="fb:LocationPointType">
+            <fb:location srsName="urn:ogc:def:crs:EPSG::4326">
+              <ff:pos>35.15135442846945 -119.38980102539062</ff:pos>
+            </fb:location>
+          </fx:point>
+        </fx:routePoint>
+      </fx:segment>
+      <fx:segment>
+        <fx:routePoint>
+          <fx:point xsi:type="fb:FixPointType" fix="DETOX"/>
+        </fx:routePoint>
+      </fx:segment>
+    </fx:route>
+  </fx:agreed>
+  <fx:aircraftDescription wakeTurbulence="H">
+    <fx:aircraftType>
+      <fx:icaoModelIdentifier>B744</fx:icaoModelIdentifier>
+    </fx:aircraftType>
+    <fx:capabilities>
+      <fx:communication>
+        <fx:communicationCode>V</fx:communicationCode>
+      </fx:communication>
+      <fx:navigation>
+        <fx:navigationCode>D O</fx:navigationCode>
+      </fx:navigation>
+      <fx:surveillance>
+        <fx:surveillanceCode>S</fx:surveillanceCode>
+      </fx:surveillance>
+    </fx:capabilities>
+  </fx:aircraftDescription>
+  <fx:arrival>
+    <fx:arrivalAerodrome xsi:type="fb:IcaoAerodromeReferenceType" code="LIMC"/>
+  </fx:arrival>
+  <fx:departure standardInstrumentDeparture="DOOLY7">
+    <fx:departureAerodrome xsi:type="fb:IcaoAerodromeReferenceType" code="KATL"/>
+    <fx:runwayPositionAndTime runwayName="27R">
+      <fb:runwayTime>
+        <fb:actual time="2016-08-29T20:46:00.000Z"/>
+        <fb:target time="2016-08-29T20:53:41.258Z"/>
+      </fb:runwayTime>
+    </fx:runwayPositionAndTime>
+    <fx:standPositionAndTime standName="D7">
+      <fb:standTime>
+        <fb:actual time="2016-08-29T20:49:36.258Z"/>
+        <fb:target time="2016-08-29T20:49:36.258Z"/>
+      </fb:standTime>
+    </fx:standPositionAndTime>
+  </fx:departure>
+  <fx:enRoute system="TGF">
+    <fx:beaconCodeAssignment>
+      <fx:currentBeaconCode>2003</fx:currentBeaconCode>
+    </fx:beaconCodeAssignment>
+    <fx:position positionTime="2016-08-29T21:14:06.926Z" source="FAA" system="TGF">
+      <fx:actualSpeed>
+        <fx:surveillance uom="KNOTS">0.0</fx:surveillance>
+      </fx:actualSpeed>
+      <fx:altitude ref="FLIGHT_LEVEL" uom="FEET">28000.0</fx:altitude>
+      <fx:position xsi:type="fb:LocationPointType">
+        <fb:location srsName="urn:ogc:def:crs:EPSG::4326">
+          <ff:pos>35.15 -119.38</ff:pos>
+        </fb:location>
+      </fx:position>
+      <fx:track uom="DEGREES">64.46141510902974</fx:track>
+    </fx:position>
+  </fx:enRoute>
+  <fx:flightIdentification aircraftIdentification="MNG200D"/>
+  <fx:gufi codeSpace="urn:uuid">8c7995c5-1a65-430c-96d8-a8347b9ed2a3</fx:gufi>
+</fx:Flight>
