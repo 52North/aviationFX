@@ -1,6 +1,7 @@
 package org.n52.aviation.aviationfx;
 
 import com.sun.javafx.stage.StageHelper;
+import java.util.Random;
 import java.util.Scanner;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
@@ -85,31 +86,31 @@ public class MainApp extends Application {
                 }
                 EventBusInstance.getEventBus().post(new NewMessageEvent(readFlight(), ContentType.APPLICATION_XML));
             }
-        }).start();
+        })
+//        .start()
+        ;
     }
 
     private String readAirspace() {
-        Scanner sc = new Scanner(getClass().getResourceAsStream("/test-saa.xml"));
-        StringBuilder sb = new StringBuilder();
-        while (sc.hasNext()) {
-            sb.append(sc.nextLine());
+        StringBuilder sb;
+        try (Scanner sc = new Scanner(getClass().getResourceAsStream("/test-saa.xml"))) {
+            sb = new StringBuilder();
+            while (sc.hasNext()) {
+                sb.append(sc.nextLine());
+            }
         }
-
-        sc.close();
         return sb.toString();
     }
 
     private String readFlight() {
-        Scanner sc = new Scanner(getClass().getResourceAsStream("/test-flight.xml"));
-        StringBuilder sb = new StringBuilder();
-        while (sc.hasNext()) {
-            sb.append(sc.nextLine());
+        StringBuilder sb;
+        try (Scanner sc = new Scanner(getClass().getResourceAsStream("/test-flight.xml"))) {
+            sb = new StringBuilder();
+            while (sc.hasNext()) {
+                sb.append(sc.nextLine());
+            }   this.currLat += 0.01;
+            this.currLon += 0.01;
         }
-
-        this.currLat += 0.01;
-        this.currLon += 0.01;
-
-        sc.close();
-        return sb.toString().replace("${lat}", ""+currLat).replace("${lon}", ""+currLon);
+        return sb.toString().replace("${lat}", ""+currLat).replace("${lon}", ""+currLon).replace("${bearing}", ""+new Random().nextInt(359));
     }
 }

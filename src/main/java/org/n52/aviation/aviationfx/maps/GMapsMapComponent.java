@@ -324,7 +324,7 @@ public class GMapsMapComponent implements MapComponent, MapComponentInitializedL
 
         Platform.runLater(() -> {
             String gufi = flight.getGufi();
-            int heading = 0;
+            int heading = (int) flight.getBearing();
             Marker m = null;
             LatLong markerLatLong = new LatLong(flight.getCurrentPosition().getLatitude(),
                     flight.getCurrentPosition().getLongitude());

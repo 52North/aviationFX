@@ -114,7 +114,7 @@
           <ff:pos>${lat} ${lon}</ff:pos>
         </fb:location>
       </fx:position>
-      <fx:track uom="DEGREES">64.46141510902974</fx:track>
+      <fx:track uom="DEGREES">${bearing}</fx:track>
     </fx:position>
   </fx:enRoute>
   <fx:flightIdentification aircraftIdentification="MNG200D"/>

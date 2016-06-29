@@ -31,8 +31,9 @@ public class FlightDecoder {
            Position curr = parseCurrentPosition(fd);
            String gufi = parseGufi(fd);
            String identification = parseIdentification(fd);
+           double bearing = parseBearing(fd);
            Route route = parseRoute(fd);
-           return new Flight(gufi, identification, curr, route);
+           return new Flight(gufi, identification, bearing, curr, route);
        }
 
        return null;
@@ -113,6 +114,17 @@ public class FlightDecoder {
         }
 
         return new Route(result);
+    }
+
+    private double parseBearing(FlightDocument fd) {
+        if (fd.getFlight().isSetEnRoute()) {
+            EnRouteType en = fd.getFlight().getEnRoute();
+            if (en.isSetPosition() && en.getPosition().isSetTrack()) {
+                return en.getPosition().getTrack().getDoubleValue();
+            }
+        }
+
+        return 0.0;
     }
 
 

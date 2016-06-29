@@ -114,7 +114,7 @@
           <ff:pos>35.15 -119.38</ff:pos>
         </fb:location>
       </fx:position>
-      <fx:track uom="DEGREES">64.46141510902974</fx:track>
+      <fx:track uom="DEGREES">62.2</fx:track>
     </fx:position>
   </fx:enRoute>
   <fx:flightIdentification aircraftIdentification="MNG200D"/>

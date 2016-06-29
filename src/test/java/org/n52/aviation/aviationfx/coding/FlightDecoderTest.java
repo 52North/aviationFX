@@ -23,10 +23,11 @@ public class FlightDecoderTest {
 
         Assert.assertThat(flight.getGufi(), CoreMatchers.is("8c7995c5-1a65-430c-96d8-a8347b9ed2a3"));
         Assert.assertThat(flight.getIdentification(), CoreMatchers.is("MNG200D"));
+        Assert.assertThat(flight.getBearing(), CoreMatchers.is(62.2));
         Assert.assertThat(flight.getCurrentPosition().getLatitude(), CoreMatchers.is(35.15));
         Assert.assertThat(flight.getCurrentPosition().getLongitude(), CoreMatchers.is(-119.38));
-        Assert.assertThat(flight.getRoute(), CoreMatchers.notNullValue());
 
+        Assert.assertThat(flight.getRoute(), CoreMatchers.notNullValue());
         Route route = flight.getRoute();
         Assert.assertThat(route.getPositionList().size(), CoreMatchers.is(3));
         Assert.assertThat(route.getPositionList().get(0).getLatitude(), CoreMatchers.is(34.31281554905527));
