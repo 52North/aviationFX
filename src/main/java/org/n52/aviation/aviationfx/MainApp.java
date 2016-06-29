@@ -1,13 +1,16 @@
 package org.n52.aviation.aviationfx;
 
 import com.sun.javafx.stage.StageHelper;
+import java.util.Scanner;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.n52.amqp.ContentType;
 import org.n52.aviation.aviationfx.consume.AmqpConsumer;
+import org.n52.aviation.aviationfx.consume.NewMessageEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +20,8 @@ public class MainApp extends Application {
     private static final Logger LOG = LoggerFactory.getLogger(MainApp.class);
     private AmqpConsumer amqpConsumer;
     private Stage mainStage;
+    private double currLat = 35.15;
+    private double currLon = -119.38;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -63,6 +68,48 @@ public class MainApp extends Application {
 
         //TODO do not use singletons....
         EventBusInstance.getEventBus().register(this.amqpConsumer);
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException ex) {
+                LOG.warn(ex.getMessage(), ex);
+            }
+            EventBusInstance.getEventBus().post(new NewMessageEvent(readAirspace(), ContentType.APPLICATION_XML));
+
+            while (true) {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ex) {
+                    LOG.warn(ex.getMessage(), ex);
+                }
+                EventBusInstance.getEventBus().post(new NewMessageEvent(readFlight(), ContentType.APPLICATION_XML));
+            }
+        }).start();
     }
 
+    private String readAirspace() {
+        Scanner sc = new Scanner(getClass().getResourceAsStream("/test-saa.xml"));
+        StringBuilder sb = new StringBuilder();
+        while (sc.hasNext()) {
+            sb.append(sc.nextLine());
+        }
+
+        sc.close();
+        return sb.toString();
+    }
+
+    private String readFlight() {
+        Scanner sc = new Scanner(getClass().getResourceAsStream("/test-flight.xml"));
+        StringBuilder sb = new StringBuilder();
+        while (sc.hasNext()) {
+            sb.append(sc.nextLine());
+        }
+
+        this.currLat += 0.01;
+        this.currLon += 0.01;
+
+        sc.close();
+        return sb.toString().replace("${lat}", ""+currLat).replace("${lon}", ""+currLon);
+    }
 }

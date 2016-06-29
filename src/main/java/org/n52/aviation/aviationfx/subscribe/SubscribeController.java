@@ -227,7 +227,7 @@ public class SubscribeController implements Initializable {
         SubscribeDocument subDoc = SubscribeDocument.Factory.newInstance();
         SubscribeDocument.Subscribe sub = subDoc.addNewSubscribe();
 
-        sub.setInitialTerminationTime(new Date(System.currentTimeMillis() + 30000));
+        sub.setInitialTerminationTime(new Date(System.currentTimeMillis() + 150000));
 
         EndpointReferenceType conRef = sub.addNewConsumerReference();
         AttributedURIType addr = conRef.addNewAddress();
