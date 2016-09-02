@@ -1,0 +1,24 @@
+<div ng-controller="MenuController">
+  <md-toolbar md-scroll-shrink layout-fill>
+      <div class="md-toolbar-tools">
+          <md-button class="md-icon-button" ng-click="toggleLeft()">
+            <md-icon md-font-set="material-icons">menu</md-icon>
+          </md-button>
+      </div>
+  </md-toolbar>
+  <md-sidenav class="md-sidenav-left md-whiteframe-4dp" md-component-id="left">
+    <md-toolbar class="md-theme-light">
+      <div class="md-toolbar-tools">
+          <md-button class="md-icon-button" ng-click="toggleLeft()">
+            <md-icon md-font-set="material-icons">local_airport</md-icon>
+          </md-button>
+          <h1 class="md-toolbar-tools">aviationFX</h1>
+      </div>
+    </md-toolbar>
+    <md-content layout-padding>
+      <md-button ng-click="openSubscriptionDialog($event)" class="md-primary">
+        <md-icon md-font-set="material-icons">add</md-icon> new subscription
+      </md-button>
+    </md-content>
+  </md-sidenav>
+</div>

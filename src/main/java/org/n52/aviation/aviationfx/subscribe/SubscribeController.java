@@ -1,25 +1,14 @@
 package org.n52.aviation.aviationfx.subscribe;
 
+import com.google.common.eventbus.EventBus;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Stream;
-import javafx.application.Platform;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.control.Accordion;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TitledPane;
 import javax.xml.namespace.QName;
 import net.opengis.pubsub.x10.DeliveryMethodDocument;
 import net.opengis.pubsub.x10.DeliveryMethodType;
@@ -30,25 +19,19 @@ import net.opengis.pubsub.x10.SubscriptionIdentifierDocument;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.n52.aviation.aviationfx.EventBusInstance;
 import org.n52.aviation.aviationfx.XmlBeansHelper;
 import org.oasisOpen.docs.wsn.b2.ConsumerReferenceDocument;
 import org.oasisOpen.docs.wsn.b2.SubscribeDocument;
@@ -65,113 +48,49 @@ import org.w3.x2005.x08.addressing.ReferenceParametersType;
  *
  * @author Matthes Rieke m.rieke@52north.org
  */
-public class SubscribeController implements Initializable {
+public class SubscribeController {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubscribeController.class);
-
-    @FXML
-    private Accordion accordion;
-    @FXML
-    private TitledPane serverPane;
-    @FXML
-    private Button requestButton;
-    @FXML
-    private ComboBox<String> publication;
-    @FXML
-    private TextField pubSubServer;
-    @FXML
-    private TextField authUser;
-    @FXML
-    private TextField authPassword;
-    @FXML
-    private ProgressIndicator requestProgress;
-    @FXML
-    private ComboBox<String> deliveryMethod;
-    @FXML
-    private Label publicationAbstract;
-    @FXML
-    private Label deliveryMethodAbstract;
-    @FXML
-    private Button cancelButton;
-    @FXML
-    private Button okButton;
-    @FXML
-    private ProgressIndicator okIndicator;
 
     private Map<String, String> publicationsMap = new HashMap<>();
     private Map<String, String> deliveryMethodsMap = new HashMap<>();
     private String amqpDefaultBroker;
+    private EventBus eventBus;
+    private final String host;
+    private org.n52.aviation.aviationfx.model.Credentials credentials;
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        accordion.setExpandedPane(serverPane);
+    public SubscribeController(String serverUrl) {
+        this.host = serverUrl;
+    }
 
-        cancelButton.setOnAction(e -> {
-            ((Node) (e.getSource())).getScene().getWindow().hide();
-        });
+    public void setCredentials(org.n52.aviation.aviationfx.model.Credentials credentials) {
+        this.credentials = credentials;
+    }
+    
+    public void requestServiceCapabilities() {
+        String serverUrl = host.concat("?service=PubSub&request=GetCapabilities");
 
-        okButton.setOnAction(e -> {
-            //show indicator
-            Platform.runLater(() -> {
-                okIndicator.setVisible(true);
-            });
+        HttpGet get = new HttpGet(serverUrl);
+        CredentialsProvider credsProvider = checkAndSetAuthentication(get);
 
-            String dm = deliveryMethod.valueProperty().get();
-            String pub = publication.valueProperty().get();
+        try (CloseableHttpClient c = HttpClientBuilder.create().setDefaultCredentialsProvider(credsProvider).build()) {
+            CloseableHttpResponse resp = c.execute(get);
+            PublisherCapabilitiesDocument pubCapDoc = PublisherCapabilitiesDocument.Factory.parse(resp.getEntity().getContent());
 
-            try {
-                SubscriptionProperties props = subscribe(pubSubServer.getText(), pub, dm);
-                EventBusInstance.getEventBus().post(new NewSubscriptionEvent(props));
-            } catch (SubscribeFailedException ex) {
-                EventBusInstance.getEventBus().post(new SubscribeFailedEvent(ex));
-                LOG.warn(ex.getMessage(), ex);
-            }
+            //update UI
+            updatePublications(pubCapDoc);
+            updateDeliveryMethods(pubCapDoc);
 
-            ((Node) (e.getSource())).getScene().getWindow().hide();
-        });
-
-        requestButton.setOnAction(e -> {
-            //show indicator
-            Platform.runLater(() -> {
-                requestProgress.setVisible(true);
-            });
-
-            new Thread(() -> {
-                String serverUrl = pubSubServer.getText();
-
-                serverUrl = serverUrl.concat("?service=PubSub&request=GetCapabilities");
-
-                HttpGet get = new HttpGet(serverUrl);
-                CredentialsProvider credsProvider = checkAndSetAuthentication(get);
-
-                try (CloseableHttpClient c = HttpClientBuilder.create().setDefaultCredentialsProvider(credsProvider).build()) {
-                    CloseableHttpResponse resp = c.execute(get);
-                    PublisherCapabilitiesDocument pubCapDoc = PublisherCapabilitiesDocument.Factory.parse(resp.getEntity().getContent());
-
-                    //update UI
-                    Platform.runLater(() -> {
-                        updatePublications(pubCapDoc);
-                        updateDeliveryMethods(pubCapDoc);
-                        publication.setDisable(false);
-                        requestProgress.setVisible(false);
-                    });
-
-                } catch (IOException | XmlException ex) {
-                    LOG.warn(ex.getMessage(), ex);
-                }
-            }).start();
-
-        });
+        } catch (IOException | XmlException ex) {
+            LOG.warn(ex.getMessage(), ex);
+        }
     }
 
     public CredentialsProvider checkAndSetAuthentication(HttpRequestBase hrb) {
-        if (!authUser.getText().isEmpty()) {
-            String user = authUser.getText().trim();
-            String pw = authPassword.getText().trim();
-
+        if (this.credentials != null) {
             CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
             credentialsProvider.setCredentials(new AuthScope(hrb.getURI().getHost(), hrb.getURI().getPort()),
-                new UsernamePasswordCredentials(user, pw));
+                new UsernamePasswordCredentials(this.credentials.getUser(), this.credentials.getPassword()));
 
             return credentialsProvider;
         }
@@ -185,7 +104,6 @@ public class SubscribeController implements Initializable {
             for (DeliveryMethodType dm : deliveryArray) {
                 String abstr = dm.getAbstractArray(0).getStringValue();
                 String id = dm.getIdentifier();
-                deliveryMethod.getItems().add(id);
                 deliveryMethodsMap.put(id, abstr);
 
                 //TODO: implement cleaner way
@@ -199,10 +117,6 @@ public class SubscribeController implements Initializable {
                 }
             }
 
-            deliveryMethod.valueProperty().addListener(e -> {
-                String id = deliveryMethod.valueProperty().get();
-                deliveryMethodAbstract.setText(deliveryMethodsMap.get(id));
-            });
         }
     }
 
@@ -212,18 +126,13 @@ public class SubscribeController implements Initializable {
             for (PublicationType p : pubArray) {
                 String id = p.getIdentifier();
                 String abstr = p.getAbstractArray(0).getStringValue();
-                publication.getItems().add(id);
                 publicationsMap.put(id, abstr);
             }
 
-            publication.valueProperty().addListener(e -> {
-                String id = publication.valueProperty().get();
-                publicationAbstract.setText(publicationsMap.get(id));
-            });
         }
     }
 
-    private SubscriptionProperties subscribe(String host, String pubId, String deliveryMethod) throws SubscribeFailedException {
+    public SubscriptionProperties subscribe(String host, String pubId, String deliveryMethod) throws SubscribeFailedException {
         SubscribeDocument subDoc = SubscribeDocument.Factory.newInstance();
         SubscribeDocument.Subscribe sub = subDoc.addNewSubscribe();
 

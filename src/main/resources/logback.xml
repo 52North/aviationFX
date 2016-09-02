@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <property name="logFile" value="./logs/aviationFX" />
-    <appender name="subversefile"
-                  class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <!--See http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
-        <!--and http://logback.qos.ch/manual/appenders.html#TimeBasedRollingPolicy -->
-        <!--for further documentation -->
-        <File>${logFile}.log</File>
-
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${logFile}/%d{yyyy-MM-dd}.log</fileNamePattern>
-            <!-- keep 30 days' worth of history -->
-            <maxHistory>30</maxHistory>
-        </rollingPolicy>
-
-        <encoder>
-            <charset>UTF-8</charset>
-            <pattern>%d{ISO8601} [%t] %-5p %c{32}: %m%n</pattern>
-        </encoder>
-    </appender>
-    <appender name="subverseconsole" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <charset>UTF-8</charset>
             <pattern>%d{ISO8601} [%t] %-5p %c{32}: %m%n</pattern>
@@ -27,7 +8,6 @@
     </appender>
     <!--<logger name="org.n52.subverse" level="DEBUG" />-->
     <root level="DEBUG">
-        <appender-ref ref="subversefile" />
-        <appender-ref ref="subverseconsole" />
+        <appender-ref ref="console" />
     </root>
 </configuration>

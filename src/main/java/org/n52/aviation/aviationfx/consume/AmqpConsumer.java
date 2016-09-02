@@ -1,5 +1,6 @@
 package org.n52.aviation.aviationfx.consume;
 
+import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -9,7 +10,6 @@ import org.n52.amqp.AmqpConnectionCreationFailedException;
 import org.n52.amqp.Connection;
 import org.n52.amqp.ConnectionBuilder;
 import org.n52.amqp.ContentType;
-import org.n52.aviation.aviationfx.EventBusInstance;
 import org.n52.aviation.aviationfx.subscribe.NewSubscriptionEvent;
 import org.n52.aviation.aviationfx.subscribe.SubscriptionProperties;
 import org.slf4j.Logger;
@@ -26,6 +26,7 @@ public class AmqpConsumer {
 
     private final Map<String, Connection> subscriptions = new HashMap<>();
     private boolean running = true;
+    private EventBus eventBus;
 
     @Subscribe
     public synchronized void onNewSubscription(NewSubscriptionEvent event) {
@@ -62,7 +63,7 @@ public class AmqpConsumer {
                     .subscribe(n -> {
                         if (n != null) {
                             LOG.info("Received message: {}", n);
-                            EventBusInstance.getEventBus().post(new NewMessageEvent(n.getBody(),
+                            eventBus.post(new NewMessageEvent(n.getBody(),
                                     n.getContentType().orElse(ContentType.TEXT_PLAIN)));
                         }
                     });
