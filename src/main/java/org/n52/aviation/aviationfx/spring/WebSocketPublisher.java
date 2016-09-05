@@ -2,6 +2,7 @@
 package org.n52.aviation.aviationfx.spring;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -42,26 +43,31 @@ public class WebSocketPublisher implements WebSocketConfigurer, Constructable, D
     @Override
     public void construct() {
         this.eventBus.register(this);
-        new Thread(() -> {
-            int delta = 0;
-            while (true) {
-                delta++;
-                Flight f = new Flight("tester", "1233asd123swde", 123, new Position(52+delta*0.01, 1+delta*0.01),
-                        new Route(Arrays.asList(new Position[] {
-                            new Position(51, 7),
-                            new Position(52, 7.5),
-                            new Position(52.5, 7.6)
-                })));
-                convertAndSend(f);
+//        new Thread(() -> {
+//            int delta = 0;
+//            while (true) {
+//                delta++;
+//                Flight f = new Flight("tester", "1233asd123swde", 123, new Position(52+delta*0.01, 1+delta*0.01),
+//                        new Route(Arrays.asList(new Position[] {
+//                            new Position(51, 7),
+//                            new Position(52, 7.5),
+//                            new Position(52.5, 7.6)
+//                })));
+//                convertAndSend(f);
+//
+//                try {
+//                    Thread.sleep(1000);
+//                } catch (InterruptedException ex) {
+//                    LOG.warn(ex.getMessage(), ex);
+//                }
+//            }
+//
+//        }).start();
+    }
 
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    LOG.warn(ex.getMessage(), ex);
-                }
-            }
-
-        }).start();
+    @Subscribe
+    public void onNewFlight(Flight f) {
+        convertAndSend(f);
     }
 
     @Override

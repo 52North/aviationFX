@@ -2,12 +2,11 @@ package org.n52.aviation.aviationfx.subscribe;
 
 import com.google.common.eventbus.EventBus;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.ResourceBundle;
 import java.util.stream.Stream;
 import javax.xml.namespace.QName;
 import net.opengis.pubsub.x10.DeliveryMethodDocument;
@@ -23,7 +22,6 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -33,6 +31,8 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.n52.aviation.aviationfx.XmlBeansHelper;
+import org.n52.aviation.aviationfx.model.DeliveryMethod;
+import org.n52.aviation.aviationfx.model.Publication;
 import org.oasisOpen.docs.wsn.b2.ConsumerReferenceDocument;
 import org.oasisOpen.docs.wsn.b2.SubscribeDocument;
 import org.oasisOpen.docs.wsn.b2.SubscribeResponseDocument.SubscribeResponse;
@@ -52,26 +52,29 @@ public class SubscribeController {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubscribeController.class);
 
-    private Map<String, String> publicationsMap = new HashMap<>();
-    private Map<String, String> deliveryMethodsMap = new HashMap<>();
+    private Map<String, Publication> publications = new HashMap<>();
+    private Map<String, DeliveryMethod> deliveryMethods = new HashMap<>();
     private String amqpDefaultBroker;
-    private EventBus eventBus;
+    private final EventBus eventBus;
     private final String host;
     private org.n52.aviation.aviationfx.model.Credentials credentials;
+    private final URI hostUri;
 
-    public SubscribeController(String serverUrl) {
+    public SubscribeController(String serverUrl, EventBus eb) {
         this.host = serverUrl;
+        this.hostUri = URI.create(serverUrl);
+        this.eventBus = eb;
     }
 
     public void setCredentials(org.n52.aviation.aviationfx.model.Credentials credentials) {
         this.credentials = credentials;
     }
-    
+
     public void requestServiceCapabilities() {
         String serverUrl = host.concat("?service=PubSub&request=GetCapabilities");
 
         HttpGet get = new HttpGet(serverUrl);
-        CredentialsProvider credsProvider = checkAndSetAuthentication(get);
+        CredentialsProvider credsProvider = checkAndSetAuthentication();
 
         try (CloseableHttpClient c = HttpClientBuilder.create().setDefaultCredentialsProvider(credsProvider).build()) {
             CloseableHttpResponse resp = c.execute(get);
@@ -86,10 +89,10 @@ public class SubscribeController {
         }
     }
 
-    public CredentialsProvider checkAndSetAuthentication(HttpRequestBase hrb) {
+    private CredentialsProvider checkAndSetAuthentication() {
         if (this.credentials != null) {
             CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-            credentialsProvider.setCredentials(new AuthScope(hrb.getURI().getHost(), hrb.getURI().getPort()),
+            credentialsProvider.setCredentials(new AuthScope(hostUri.getHost(), hostUri.getPort()),
                 new UsernamePasswordCredentials(this.credentials.getUser(), this.credentials.getPassword()));
 
             return credentialsProvider;
@@ -104,7 +107,7 @@ public class SubscribeController {
             for (DeliveryMethodType dm : deliveryArray) {
                 String abstr = dm.getAbstractArray(0).getStringValue();
                 String id = dm.getIdentifier();
-                deliveryMethodsMap.put(id, abstr);
+                deliveryMethods.put(id, new DeliveryMethod(id, abstr));
 
                 //TODO: implement cleaner way
                 if (dm.getExtensionArray() != null) {
@@ -126,7 +129,7 @@ public class SubscribeController {
             for (PublicationType p : pubArray) {
                 String id = p.getIdentifier();
                 String abstr = p.getAbstractArray(0).getStringValue();
-                publicationsMap.put(id, abstr);
+                publications.put(id, new Publication(id, abstr));
             }
 
         }
@@ -158,7 +161,7 @@ public class SubscribeController {
         body.set(subDoc);
 
         HttpPost post = new HttpPost(host);
-        CredentialsProvider credProv = checkAndSetAuthentication(post);
+        CredentialsProvider credProv = checkAndSetAuthentication();
 
         try (CloseableHttpClient c = HttpClientBuilder.create().setDefaultCredentialsProvider(credProv).build()) {
             post.setEntity(new StringEntity(envDoc.xmlText(new XmlOptions().setSavePrettyPrint())));
@@ -208,11 +211,14 @@ public class SubscribeController {
             }
 
             SubscriptionProperties subProps = new SubscriptionProperties(deliveryMethod, subId, consumerAddr, host);
-            Authentication auth = null;
             if (credProv != null) {
                 Credentials creds = credProv.getCredentials(new AuthScope(post.getURI().getHost(), post.getURI().getPort()));
                 subProps.setAuthentication(new Authentication(creds.getUserPrincipal().getName(), creds.getPassword()));
             }
+
+            new Thread(() -> {
+                eventBus.post(new NewSubscriptionEvent(subProps));
+            }).start();
 
             return subProps;
         } catch (IOException | XmlException ex) {
@@ -221,5 +227,12 @@ public class SubscribeController {
 
     }
 
+    public Map<String, DeliveryMethod> getDeliveryMethods() {
+        return deliveryMethods;
+    }
+
+    public Map<String, Publication> getPublications() {
+        return publications;
+    }
 
 }

@@ -19,6 +19,8 @@
     </bean>
 
     <bean class="com.google.common.eventbus.EventBus" />
+    <bean class="org.n52.aviation.aviationfx.consume.AmqpConsumer" />
+    <bean class="org.n52.aviation.aviationfx.coding.FlightDecoder" />
 
     <mvc:resources mapping="/ui/**" location="/ui/"/>
 

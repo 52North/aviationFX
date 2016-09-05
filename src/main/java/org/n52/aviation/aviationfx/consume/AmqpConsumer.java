@@ -10,30 +10,43 @@ import org.n52.amqp.AmqpConnectionCreationFailedException;
 import org.n52.amqp.Connection;
 import org.n52.amqp.ConnectionBuilder;
 import org.n52.amqp.ContentType;
+import org.n52.aviation.aviationfx.spring.Constructable;
 import org.n52.aviation.aviationfx.subscribe.NewSubscriptionEvent;
 import org.n52.aviation.aviationfx.subscribe.SubscriptionProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import rx.schedulers.Schedulers;
 
 /**
  *
  * @author Matthes Rieke m.rieke@52north.org
  */
-public class AmqpConsumer {
+public class AmqpConsumer implements Constructable {
 
     private static final Logger LOG = LoggerFactory.getLogger(AmqpConsumer.class);
 
     private final Map<String, Connection> subscriptions = new HashMap<>();
-    private boolean running = true;
+
+    @Autowired
     private EventBus eventBus;
+
+    @Override
+    public void construct() {
+        this.eventBus.register(this);
+//        try {
+//            createClient("amqp://ows.dev.52north.org/subverse.FIXM.bwxgqyukki");
+//        } catch (AmqpCreationFailedException ex) {
+//            LOG.warn(ex.getMessage(), ex);
+//        }
+    }
 
     @Subscribe
     public synchronized void onNewSubscription(NewSubscriptionEvent event) {
         if (event.getProperties().getDeliveryMethod().equals("https://docs.oasis-open.org/amqp/core/v1.0")) {
             try {
-                this.subscriptions.put(event.getProperties().getId(), createClient(event.getProperties()));
-                LOG.info("New AMQP consumer: {}", event.getProperties());
+                this.subscriptions.put(event.getProperties().getId(), createClient(event.getProperties().getAddress()));
+                LOG.info("New AMQP consumer: {}", event.getProperties().getAddress());
             } catch (AmqpCreationFailedException ex) {
                 LOG.warn(ex.getMessage(), ex);
             }
@@ -41,8 +54,6 @@ public class AmqpConsumer {
     }
 
     public void shutdown() {
-        this.running = false;
-
         this.subscriptions.keySet().stream().forEach((string) -> {
             try {
                 Connection receiver = this.subscriptions.get(string);
@@ -53,22 +64,22 @@ public class AmqpConsumer {
         });
     }
 
-    private Connection createClient(SubscriptionProperties properties) throws AmqpCreationFailedException {
+    private Connection createClient(String address) throws AmqpCreationFailedException {
         try {
-            Connection conn = ConnectionBuilder.create(new URI(properties.getAddress())).build();
+            Connection conn = ConnectionBuilder.create(new URI(address)).build();
 
             conn.createObservable()
                     .subscribeOn(Schedulers.io())
                     .observeOn(Schedulers.computation())
                     .subscribe(n -> {
                         if (n != null) {
-                            LOG.info("Received message: {}", n);
+                            LOG.debug("Received message: {}", n);
                             eventBus.post(new NewMessageEvent(n.getBody(),
                                     n.getContentType().orElse(ContentType.TEXT_PLAIN)));
                         }
                     });
 
-            LOG.info("Subscribed to {}", properties.getAddress());
+            LOG.info("Subscribed to {}", address);
 
             return conn;
         } catch (URISyntaxException | AmqpConnectionCreationFailedException ex) {

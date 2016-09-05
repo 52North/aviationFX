@@ -1,20 +1,25 @@
 package org.n52.aviation.aviationfx.spring;
 
+import com.google.common.eventbus.EventBus;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import org.n52.aviation.aviationfx.model.Credentials;
+import org.n52.aviation.aviationfx.model.DeliveryMethod;
 import org.n52.aviation.aviationfx.model.PubSubService;
+import org.n52.aviation.aviationfx.model.Publication;
 import org.n52.aviation.aviationfx.subscribe.SubscribeController;
+import org.n52.aviation.aviationfx.subscribe.SubscribeFailedException;
 import org.n52.aviation.aviationfx.subscribe.SubscribeOptions;
 import org.n52.aviation.aviationfx.subscribe.SubscriptionProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +42,9 @@ public class ResourcesController implements Constructable {
     private List<PubSubService> services;
     private Map<String, SubscribeController> controllers;
 
+    @Autowired
+    private EventBus eventBus;
+
     @Override
     public void construct() {
         this.services = new ArrayList<>();
@@ -46,11 +54,11 @@ public class ResourcesController implements Constructable {
                 null,
                 null
         ));
-        
+
         this.controllers = new HashMap<>();
-        for (PubSubService service : services) {
-            this.controllers.put(service.getHost(), new SubscribeController(service.getHost()));
-        }
+        services.stream().forEach((service) -> {
+            this.controllers.put(service.getHost(), new SubscribeController(service.getHost(), eventBus));
+        });
     }
 
 
@@ -63,8 +71,14 @@ public class ResourcesController implements Constructable {
 
 
     @RequestMapping(value = "/api/subscribe")
-    public SubscriptionProperties subscribe(@RequestBody(required = true) SubscribeOptions options) {
-        return new SubscriptionProperties(options.getDeliveryMethod(), "test", "add", options.getHost());
+    public SubscriptionProperties subscribe(@RequestBody(required = true) SubscribeOptions options) throws SubscribeFailedException {
+        SubscribeController controller = this.controllers.get(options.getHost());
+        if (controller == null) {
+            throw new IllegalArgumentException("The provided host is not supported: "+options.getHost());
+        }
+
+        SubscriptionProperties sub = controller.subscribe(options.getHost(), options.getPubId(), options.getDeliveryMethod());
+        return sub;
     }
 
     @RequestMapping(value = "/api/capabilities", method = RequestMethod.GET)
@@ -86,7 +100,23 @@ public class ResourcesController implements Constructable {
                 throw new IllegalArgumentException("service '"+pos+"' not defined");
             }
 
-            return services.get(position);
+            PubSubService service = services.get(position);
+            SubscribeController controller = this.controllers.get(service.getHost());
+
+            if (controller == null) {
+                throw new IllegalArgumentException("The provided host is not supported: "+service.getHost());
+            }
+
+            controller.setCredentials(creds);
+            controller.requestServiceCapabilities();
+
+            List<DeliveryMethod> dms = controller.getDeliveryMethods().values().stream().collect(Collectors.toList());
+            service.setDeliveryMethods(dms);
+
+            List<Publication> pubs = controller.getPublications().values().stream().collect(Collectors.toList());
+            service.setPublications(pubs);
+
+            return service;
         }
         catch (NumberFormatException e) {
             throw new IOException(e);

@@ -1,6 +1,7 @@
 package org.n52.aviation.aviationfx.subscribe;
 
 import com.google.common.base.MoreObjects;
+import org.joda.time.DateTime;
 
 /**
  *
@@ -12,7 +13,8 @@ public class SubscriptionProperties {
     private final String id;
     private final String address;
     private final String pubSubHost;
-    private Authentication authentication;
+    private transient Authentication authentication;
+    private DateTime endOfLife;
 
     public SubscriptionProperties(String deliveryMethod, String id, String address, String pubSubHost) {
         this.deliveryMethod = deliveryMethod;
@@ -39,6 +41,14 @@ public class SubscriptionProperties {
 
     public void setAuthentication(Authentication authentication) {
         this.authentication = authentication;
+    }
+
+    public DateTime getEndOfLife() {
+        return endOfLife;
+    }
+
+    public void setEndOfLife(DateTime endOfLife) {
+        this.endOfLife = endOfLife;
     }
 
     @Override

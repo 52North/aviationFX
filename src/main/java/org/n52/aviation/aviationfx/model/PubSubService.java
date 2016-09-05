@@ -30,12 +30,20 @@ public class PubSubService {
         return deliveryMethods;
     }
 
+    public void setDeliveryMethods(List<DeliveryMethod> deliveryMethods) {
+        this.deliveryMethods = deliveryMethods;
+    }
+
     public String getHost() {
         return host;
     }
 
     public List<Publication> getPublications() {
         return publications;
+    }
+
+    public void setPublications(List<Publication> publications) {
+        this.publications = publications;
     }
 
     public boolean isAuthenticated() {
