@@ -1,12 +1,17 @@
 
 package org.n52.aviation.aviationfx.coding;
 
+import org.n52.aviation.aviationfx.model.Airspace;
 import aero.aixm.schema.x51.AbstractAIXMFeatureType;
+import aero.aixm.schema.x51.AirspaceActivationPropertyType;
+import aero.aixm.schema.x51.AirspaceActivationType;
 import aero.aixm.schema.x51.AirspaceGeometryComponentPropertyType;
 import aero.aixm.schema.x51.AirspaceTimeSlicePropertyType;
 import aero.aixm.schema.x51.AirspaceTimeSliceType;
 import aero.aixm.schema.x51.AirspaceType;
 import aero.aixm.schema.x51.InterpretationDocument;
+import aero.aixm.schema.x51.LinguisticNotePropertyType;
+import aero.aixm.schema.x51.NotePropertyType;
 import aero.aixm.schema.x51.SurfaceType;
 import aero.aixm.schema.x51.message.AIXMBasicMessageDocument;
 import aero.aixm.schema.x51.message.BasicMessageMemberAIXMPropertyType;
@@ -57,7 +62,18 @@ public class AirspaceDecoder {
                 if (timeSlice != null) {
                     AirspaceGeometryComponentPropertyType[] geoms = timeSlice.getGeometryComponentArray();
                     Polygon geometry = parseGeometry(geoms);
-                    return new Airspace(geometry);
+                    Airspace result = new Airspace(geometry);
+
+                    if (timeSlice.isSetType()) {
+                        result.setType(timeSlice.getType().getStringValue());
+                    }
+
+                    if (timeSlice.getActivationArray()!= null && timeSlice.getActivationArray().length > 0) {
+                        String annotationNote = resolveAnnotationNode(timeSlice.getActivationArray());
+                        result.setAnnotationNote(annotationNote);
+                    }
+
+                    return result;
                 }
             }
         }
@@ -103,6 +119,25 @@ public class AirspaceDecoder {
         for (AbstractSurfacePatchType patch : surface.getPatches().getAbstractSurfacePatchArray()) {
             GeometryWithInterpolation polyPatch = PolygonFactory.createPolygonPatch(patch, null);
             return (Polygon) polyPatch.getGeometry();
+        }
+
+        return null;
+    }
+
+    private String resolveAnnotationNode(AirspaceActivationPropertyType[] activationArray) {
+        for (AirspaceActivationPropertyType aap : activationArray) {
+            AirspaceActivationType activation = aap.getAirspaceActivation();
+            if (activation.getAnnotationArray() != null && activation.getAircraftArray().length > 0) {
+                for (NotePropertyType np : activation.getAnnotationArray()) {
+                    if (np.getNote().getTranslatedNoteArray() != null && np.getNote().getTranslatedNoteArray().length > 0) {
+                        for (LinguisticNotePropertyType lnp : np.getNote().getTranslatedNoteArray()) {
+                            if (lnp.getLinguisticNote().isSetNote()) {
+                                return lnp.getLinguisticNote().getNote().getStringValue();
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         return null;

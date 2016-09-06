@@ -77,7 +77,49 @@
             </gml:TimeInstant>
           </gml:validTime>
           <aixm:interpretation>SNAPSHOT</aixm:interpretation>
-          <aixm:type>D</aixm:type>
+          <aixm:type>R</aixm:type>
+          <aixm:activation>
+            <aixm:AirspaceActivation gml:id="ID_72">
+              <aixm:annotation>
+                <aixm:Note gml:id="ID_74">
+                  <aixm:purpose>REMARK</aixm:purpose>
+                  <aixm:translatedNote>
+                    <aixm:LinguisticNote gml:id="ID_75">
+                      <aixm:note>SAR activities during fire fighting</aixm:note>
+                    </aixm:LinguisticNote>
+                  </aixm:translatedNote>
+                </aixm:Note>
+              </aixm:annotation>
+              <aixm:annotation>
+                <aixm:Note gml:id="ID_76">
+                  <aixm:purpose>REMARK</aixm:purpose>
+                  <aixm:translatedNote>
+                    <aixm:LinguisticNote gml:id="ID_77">
+                      <aixm:note>Prohibited for all manned military and civilian aircraft during fire fighting activity.</aixm:note>
+                    </aixm:LinguisticNote>
+                  </aixm:translatedNote>
+                </aixm:Note>
+              </aixm:annotation>
+              <aixm:annotation>
+                <aixm:Note gml:id="ID_78">
+                  <aixm:purpose>REMARK</aixm:purpose>
+                  <aixm:translatedNote>
+                    <aixm:LinguisticNote gml:id="ID_79">
+                      <aixm:note>More info can be obtained via EBMIZGZF.</aixm:note>
+                    </aixm:LinguisticNote>
+                  </aixm:translatedNote>
+                </aixm:Note>
+              </aixm:annotation>
+              <aixm:activity>SAR</aixm:activity>
+              <aixm:status>ACTIVE</aixm:status>
+              <aixm:levels>
+                <aixm:AirspaceLayer gml:id="ID_73">
+                  <aixm:upperLimit uom="OTHER">CEILING</aixm:upperLimit>
+                  <aixm:lowerLimit uom="OTHER">FLOOR</aixm:lowerLimit>
+                </aixm:AirspaceLayer>
+              </aixm:levels>
+            </aixm:AirspaceActivation>
+          </aixm:activation>
           <aixm:designator>LEB04</aixm:designator>
           <aixm:name>LEBEC</aixm:name>
           <aixm:geometryComponent>
@@ -124,7 +166,7 @@
           </gml:validTime>
           <aixm:interpretation>TEMPDELTA</aixm:interpretation>
           <aixm:sequenceNumber>1</aixm:sequenceNumber>
-          <aixm:type>P</aixm:type> <!-- see coding rule referring to terms used in the information from originator that the area is prohibited -->
+          <aixm:type>R</aixm:type> <!-- see coding rule referring to terms used in the information from originator that the area is prohibited -->
           <aixm:activation>
             <aixm:AirspaceActivation gml:id="ID_72">
               <aixm:annotation>

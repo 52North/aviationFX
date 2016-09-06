@@ -1,11 +1,14 @@
 
 package org.n52.aviation.aviationfx.coding;
 
+import org.n52.aviation.aviationfx.model.Airspace;
 import com.vividsolutions.jts.geom.LineString;
 import java.io.IOException;
+import java.util.List;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
+import org.n52.aviation.aviationfx.model.Position;
 
 /**
  *
@@ -19,14 +22,14 @@ public class AirspaceDecoderTest {
         Airspace a = decoder.decode(getClass().getResourceAsStream("/test-saa.xml"));
 
         Assert.assertThat(a, CoreMatchers.notNullValue());
-        Assert.assertThat(a.getPolygon(), CoreMatchers.notNullValue());
+        Assert.assertThat(a.getOuterRing(), CoreMatchers.notNullValue());
 
-        LineString polygon = a.getPolygon().getExteriorRing();
-        Assert.assertThat(polygon.getCoordinates().length, CoreMatchers.is(7));
-        Assert.assertThat(polygon.getCoordinates()[0].x, CoreMatchers.is(-118.67980957031249));
-        Assert.assertThat(polygon.getCoordinates()[0].y, CoreMatchers.is(34.54163119530972));
-        Assert.assertThat(polygon.getCoordinates()[6].x, CoreMatchers.is(-118.67980957031249));
-        Assert.assertThat(polygon.getCoordinates()[6].y, CoreMatchers.is(34.54163119530972));
+        List<Position> polygon = a.getOuterRing();
+        Assert.assertThat(polygon.size(), CoreMatchers.is(7));
+        Assert.assertThat(polygon.get(0).getLongitude(), CoreMatchers.is(-118.67980957031249));
+        Assert.assertThat(polygon.get(0).getLatitude(), CoreMatchers.is(34.54163119530972));
+        Assert.assertThat(polygon.get(6).getLongitude(), CoreMatchers.is(-118.67980957031249));
+        Assert.assertThat(polygon.get(6).getLatitude(), CoreMatchers.is(34.54163119530972));
 
     }
 
