@@ -163,7 +163,10 @@ angular.module('aviationFX').controller("MapController", ['$scope', 'leafletData
       templateUrl: 'templates/newsubscription.tmpl.html',
       parent: angular.element(document.body),
       targetEvent: ev,
-      clickOutsideToClose:true
+      clickOutsideToClose:true,
+      locals: {
+        airspace: $scope.polygons[id]
+     }
     })
     .then(function(answer) {
       $scope.status = 'You said the information was "' + answer + '".';
