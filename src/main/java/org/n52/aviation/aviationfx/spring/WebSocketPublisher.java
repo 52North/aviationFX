@@ -67,6 +67,7 @@ public class WebSocketPublisher implements WebSocketConfigurer, Constructable, D
                     new Coordinate(6, 50)
                 }), null));
                 a.setType("P");
+                a.setIdentifier("test-test-123");
                 a.setAnnotationNote("SAR Activity due to forest fires");
                 convertAndSend(a);
 

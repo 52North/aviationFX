@@ -1,4 +1,4 @@
-angular.module('aviationFX').controller("MapController", ['$scope', 'leafletData', '$location', '$websocket', function($scope, leafletData, $location, $websocket) {
+angular.module('aviationFX').controller("MapController", ['$scope', 'leafletData', '$location', '$websocket', '$mdDialog', function($scope, leafletData, $location, $websocket, $mdDialog) {
   angular.extend($scope, {
     center: {
       lat: 51.505,
@@ -8,6 +8,8 @@ angular.module('aviationFX').controller("MapController", ['$scope', 'leafletData
     markers: {
     },
     paths: {
+    },
+    polygons: {
     }
   });
 
@@ -88,20 +90,50 @@ angular.module('aviationFX').controller("MapController", ['$scope', 'leafletData
 
   $scope.parseAirspace = function(payload) {
     if (payload.outerRing) {
-      var coords = [];
-      payload.outerRing.forEach(function(c) {
-        coords.push({
-          lat: c.latitude,
-          lng: c.longitude
-        });
-      });
-      var poly = L.polygon(coords, {
-        color: '#000080',
-        weight: 8,
-        opacity: 0.5
-      });
-      poly.addTo($scope.map).bindPopup("I am a polygon.");
+
+      var addedPoly;
+      if (!$scope.polygons[payload.identifier]) {
+          //new airspace
+          var coords = [];
+          payload.outerRing.forEach(function(c) {
+            coords.push({
+              lat: c.latitude,
+              lng: c.longitude
+            });
+          });
+          var poly = L.polygon(coords, {
+            color: '#000080',
+            weight: 8,
+            opacity: 0.5
+          });
+
+          addedPoly = poly.addTo($scope.map);
+          $scope.polygons[payload.identifier] = addedPoly;
+      }
+      else {
+         addedPoly = $scope.polygons[payload.identifier];
+      }
+
+      addedPoly.data = payload;
+
+      var template = '<h3>'+addedPoly.data.identifier+'</h3>'+
+        '<ul><li>Type: '+addedPoly.data.type+'</li><li>Note: '+addedPoly.data.annotationNote+'</li></ul>'+
+        '<md-button ng-click="openSubscriptionDialog($event, \''+addedPoly.data.identifier+'\')" class="md-primary">'+
+          '<md-icon md-font-set="material-icons">add</md-icon> new subscription'+
+        '</md-button>';
+      var popup = L.popup.angular({
+          template: template,
+          controller: 'MapController'
+      })
+      .setContent({
+          'name': 'foo',
+          'title': 'bar'
+      });;
+
+      addedPoly.bindPopup(popup);
+      addedPoly.popup = popup;
     }
+
   }
 
   messageUpdates.onMessage(function(message) {
@@ -122,6 +154,23 @@ angular.module('aviationFX').controller("MapController", ['$scope', 'leafletData
 
     }
   });
+
+  $scope.openSubscriptionDialog = function(ev, id) {
+    console.info($scope.polygons[id]);
+    $scope.map.closePopup();
+    $mdDialog.show({
+      controller: 'NewSubscriptionController',
+      templateUrl: 'templates/newsubscription.tmpl.html',
+      parent: angular.element(document.body),
+      targetEvent: ev,
+      clickOutsideToClose:true
+    })
+    .then(function(answer) {
+      $scope.status = 'You said the information was "' + answer + '".';
+    }, function() {
+      $scope.status = 'You cancelled the dialog.';
+    });
+  }
 
   $scope.activeFlightRoutes = function(id) {
     console.info('Showing flight route for '+id);

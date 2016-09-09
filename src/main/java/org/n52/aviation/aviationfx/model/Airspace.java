@@ -20,6 +20,7 @@ public class Airspace {
     private double lowerLimit;
     private double upperLimit;
     private String altitudeUnit;
+    private String identifier;
 
     public Airspace(Polygon polygon) {
         Objects.requireNonNull(polygon);
@@ -52,4 +53,11 @@ public class Airspace {
         this.annotationNote = annotationNote;
     }
 
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
 }
