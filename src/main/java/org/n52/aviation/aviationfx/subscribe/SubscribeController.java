@@ -5,10 +5,23 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.xml.namespace.QName;
+import net.opengis.fes.x20.BinarySpatialOpType;
+import net.opengis.fes.x20.FilterDocument;
+import net.opengis.fes.x20.IntersectsDocument;
+import net.opengis.fes.x20.LiteralDocument;
+import net.opengis.fes.x20.LiteralType;
+import net.opengis.fes.x20.SpatialOpsType;
+import net.opengis.gml.x32.AbstractRingPropertyType;
+import net.opengis.gml.x32.CoordinatesType;
+import net.opengis.gml.x32.LinearRingDocument;
+import net.opengis.gml.x32.LinearRingType;
+import net.opengis.gml.x32.PolygonDocument;
+import net.opengis.gml.x32.PolygonType;
 import net.opengis.pubsub.x10.DeliveryMethodDocument;
 import net.opengis.pubsub.x10.DeliveryMethodType;
 import net.opengis.pubsub.x10.PublicationIdentifierDocument;
@@ -31,9 +44,13 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.n52.aviation.aviationfx.XmlBeansHelper;
+import org.n52.aviation.aviationfx.coding.SubscribeEncoder;
 import org.n52.aviation.aviationfx.model.DeliveryMethod;
+import org.n52.aviation.aviationfx.model.Polygon;
+import org.n52.aviation.aviationfx.model.Position;
 import org.n52.aviation.aviationfx.model.Publication;
 import org.oasisOpen.docs.wsn.b2.ConsumerReferenceDocument;
+import org.oasisOpen.docs.wsn.b2.FilterType;
 import org.oasisOpen.docs.wsn.b2.SubscribeDocument;
 import org.oasisOpen.docs.wsn.b2.SubscribeResponseDocument.SubscribeResponse;
 import org.slf4j.Logger;
@@ -135,31 +152,8 @@ public class SubscribeController {
         }
     }
 
-    public SubscriptionProperties subscribe(String host, String pubId, String deliveryMethod) throws SubscribeFailedException {
-        SubscribeDocument subDoc = SubscribeDocument.Factory.newInstance();
-        SubscribeDocument.Subscribe sub = subDoc.addNewSubscribe();
-
-        sub.setInitialTerminationTime(new Date(System.currentTimeMillis() + 1800000));
-
-        EndpointReferenceType conRef = sub.addNewConsumerReference();
-        AttributedURIType addr = conRef.addNewAddress();
-        addr.setStringValue(amqpDefaultBroker != null ? amqpDefaultBroker : "localhost");
-
-        PublicationIdentifierDocument pubIdDoc = PublicationIdentifierDocument.Factory.newInstance();
-        pubIdDoc.setPublicationIdentifier(pubId);
-
-        XmlBeansHelper.insertChild(sub, pubIdDoc);
-
-        DeliveryMethodDocument delMethDoc = DeliveryMethodDocument.Factory.newInstance();
-        DeliveryMethodType delMeth = delMethDoc.addNewDeliveryMethod();
-        delMeth.setIdentifier(deliveryMethod);
-
-        XmlBeansHelper.insertChild(sub, delMethDoc);
-
-        EnvelopeDocument envDoc = EnvelopeDocument.Factory.newInstance();
-        Body body = envDoc.addNewEnvelope().addNewBody();
-        body.set(subDoc);
-
+    public SubscriptionProperties subscribe(SubscribeOptions options) throws SubscribeFailedException {
+        EnvelopeDocument envDoc = new SubscribeEncoder().encodeSubscription(options, amqpDefaultBroker);
         HttpPost post = new HttpPost(host);
         CredentialsProvider credProv = checkAndSetAuthentication();
 
@@ -210,7 +204,7 @@ public class SubscribeController {
                 throw new SubscribeFailedException("No consumerAddr id in response");
             }
 
-            SubscriptionProperties subProps = new SubscriptionProperties(deliveryMethod, subId, consumerAddr, host);
+            SubscriptionProperties subProps = new SubscriptionProperties(options.getDeliveryMethod(), subId, consumerAddr, host);
             if (credProv != null) {
                 Credentials creds = credProv.getCredentials(new AuthScope(post.getURI().getHost(), post.getURI().getPort()));
                 subProps.setAuthentication(new Authentication(creds.getUserPrincipal().getName(), creds.getPassword()));

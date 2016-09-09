@@ -77,7 +77,7 @@ public class ResourcesController implements Constructable {
             throw new IllegalArgumentException("The provided host is not supported: "+options.getHost());
         }
 
-        SubscriptionProperties sub = controller.subscribe(options.getHost(), options.getPubId(), options.getDeliveryMethod());
+        SubscriptionProperties sub = controller.subscribe(options);
         return sub;
     }
 

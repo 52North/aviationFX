@@ -73,6 +73,8 @@ public class AirspaceDecoder {
                         result.setAnnotationNote(annotationNote);
                     }
 
+                    result.setIdentifier(at.getIdentifier().getStringValue());
+
                     return result;
                 }
             }

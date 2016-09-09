@@ -1,0 +1,32 @@
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Body>
+        <b:Subscribe xmlns:b="http://docs.oasis-open.org/wsn/b-2">
+            <b:Filter>
+                <b:MessageContent Dialect="http://www.opengis.net/fes/2.0">
+                    <ns:Filter xmlns:ns="http://www.opengis.net/fes/2.0">
+                        <ns:Intersects>
+                            <ns:Literal>
+                                <ns1:Polygon xmlns:ns1="http://www.opengis.net/gml/3.2">
+                                    <ns1:exterior>
+                                        <ns:LinearRing xmlns:ns="http://www.opengis.net/gml/3.2">
+                                            <ns:coordinates cs="," ts=";">52.1,7.1;52.2,7.2;52.3,7.3;52.1,7.1</ns:coordinates>
+                                        </ns:LinearRing>
+                                    </ns1:exterior>
+                                </ns1:Polygon>
+                            </ns:Literal>
+                            <ns:ValueReference>input/geometry</ns:ValueReference>
+                        </ns:Intersects>
+                    </ns:Filter>
+                </b:MessageContent>
+            </b:Filter>
+            <ns:DeliveryMethod xmlns:ns="http://www.opengis.net/pubsub/1.0">
+                <ns:Identifier>https://docs.oasis-open.org/amqp/core/v1.0</ns:Identifier>
+            </ns:DeliveryMethod>
+            <ns:PublicationIdentifier xmlns:ns="http://www.opengis.net/pubsub/1.0">FIXM</ns:PublicationIdentifier>
+            <b:ConsumerReference>
+                <add:Address xmlns:add="http://www.w3.org/2005/08/addressing">localhost</add:Address>
+            </b:ConsumerReference>
+            <b:InitialTerminationTime>2016-09-09T18:50:26.533+02:00</b:InitialTerminationTime>
+        </b:Subscribe>
+    </soap:Body>
+</soap:Envelope>

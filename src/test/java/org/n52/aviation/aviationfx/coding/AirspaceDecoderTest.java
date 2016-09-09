@@ -30,7 +30,7 @@ public class AirspaceDecoderTest {
         Assert.assertThat(polygon.get(0).getLatitude(), CoreMatchers.is(34.54163119530972));
         Assert.assertThat(polygon.get(6).getLongitude(), CoreMatchers.is(-118.67980957031249));
         Assert.assertThat(polygon.get(6).getLatitude(), CoreMatchers.is(34.54163119530972));
-
+        Assert.assertThat(a.getIdentifier(), CoreMatchers.equalTo("028e6905-f99a-4ca7-a736-2c0787cdcf57"));
     }
 
 }
