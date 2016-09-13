@@ -3,28 +3,12 @@ package org.n52.aviation.aviationfx.subscribe;
 import com.google.common.eventbus.EventBus;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.xml.namespace.QName;
-import net.opengis.fes.x20.BinarySpatialOpType;
-import net.opengis.fes.x20.FilterDocument;
-import net.opengis.fes.x20.IntersectsDocument;
-import net.opengis.fes.x20.LiteralDocument;
-import net.opengis.fes.x20.LiteralType;
-import net.opengis.fes.x20.SpatialOpsType;
-import net.opengis.gml.x32.AbstractRingPropertyType;
-import net.opengis.gml.x32.CoordinatesType;
-import net.opengis.gml.x32.LinearRingDocument;
-import net.opengis.gml.x32.LinearRingType;
-import net.opengis.gml.x32.PolygonDocument;
-import net.opengis.gml.x32.PolygonType;
-import net.opengis.pubsub.x10.DeliveryMethodDocument;
 import net.opengis.pubsub.x10.DeliveryMethodType;
-import net.opengis.pubsub.x10.PublicationIdentifierDocument;
 import net.opengis.pubsub.x10.PublicationType;
 import net.opengis.pubsub.x10.PublisherCapabilitiesDocument;
 import net.opengis.pubsub.x10.SubscriptionIdentifierDocument;
@@ -46,18 +30,12 @@ import org.apache.xmlbeans.XmlOptions;
 import org.n52.aviation.aviationfx.XmlBeansHelper;
 import org.n52.aviation.aviationfx.coding.SubscribeEncoder;
 import org.n52.aviation.aviationfx.model.DeliveryMethod;
-import org.n52.aviation.aviationfx.model.Polygon;
-import org.n52.aviation.aviationfx.model.Position;
 import org.n52.aviation.aviationfx.model.Publication;
 import org.oasisOpen.docs.wsn.b2.ConsumerReferenceDocument;
-import org.oasisOpen.docs.wsn.b2.FilterType;
-import org.oasisOpen.docs.wsn.b2.SubscribeDocument;
 import org.oasisOpen.docs.wsn.b2.SubscribeResponseDocument.SubscribeResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3.x2003.x05.soapEnvelope.Body;
 import org.w3.x2003.x05.soapEnvelope.EnvelopeDocument;
-import org.w3.x2005.x08.addressing.AttributedURIType;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 import org.w3.x2005.x08.addressing.ReferenceParametersType;
 
@@ -93,6 +71,7 @@ public class SubscribeController {
         HttpGet get = new HttpGet(serverUrl);
         CredentialsProvider credsProvider = checkAndSetAuthentication();
 
+        LOG.info("Requesting capabilities: "+serverUrl);
         try (CloseableHttpClient c = HttpClientBuilder.create().setDefaultCredentialsProvider(credsProvider).build()) {
             CloseableHttpResponse resp = c.execute(get);
             PublisherCapabilitiesDocument pubCapDoc = PublisherCapabilitiesDocument.Factory.parse(resp.getEntity().getContent());
@@ -107,14 +86,16 @@ public class SubscribeController {
     }
 
     private CredentialsProvider checkAndSetAuthentication() {
-        if (this.credentials != null) {
+        if (this.credentials != null && this.credentials.getUser() != null && this.credentials.getPassword() != null) {
             CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
             credentialsProvider.setCredentials(new AuthScope(hostUri.getHost(), hostUri.getPort()),
                 new UsernamePasswordCredentials(this.credentials.getUser(), this.credentials.getPassword()));
 
+            LOG.info("returning credentials provider: "+credentialsProvider);
             return credentialsProvider;
         }
 
+        LOG.info("No credentials set");
         return null;
     }
 
@@ -158,7 +139,9 @@ public class SubscribeController {
         CredentialsProvider credProv = checkAndSetAuthentication();
 
         try (CloseableHttpClient c = HttpClientBuilder.create().setDefaultCredentialsProvider(credProv).build()) {
-            post.setEntity(new StringEntity(envDoc.xmlText(new XmlOptions().setSavePrettyPrint())));
+            String xml = envDoc.xmlText(new XmlOptions().setSavePrettyPrint());
+            LOG.info("Subscribe Request: "+xml);
+            post.setEntity(new StringEntity(xml));
             post.setHeader("Content-Type", "application/soap+xml");
 
             CloseableHttpResponse resp = c.execute(post);

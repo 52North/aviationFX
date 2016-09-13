@@ -1,4 +1,4 @@
-angular.module('aviationFX').controller("MapController", ['$scope', 'leafletData', '$location', '$websocket', '$mdDialog', function($scope, leafletData, $location, $websocket, $mdDialog) {
+angular.module('aviationFX').controller("MapController", function($scope, leafletData, $location, $websocket, $mdDialog, apiService) {
   angular.extend($scope, {
     center: {
       lat: 51.505,
@@ -116,6 +116,13 @@ angular.module('aviationFX').controller("MapController", ['$scope', 'leafletData
 
       addedPoly.data = payload;
 
+      var parentScope = $scope;
+      var PopupController = function($scope) {
+        $scope.openSubscriptionDialog = function(ev, id) {
+          parentScope.openSubscriptionDialog(ev, id);
+        }
+      }
+
       var template = '<h3>'+addedPoly.data.identifier+'</h3>'+
         '<ul><li>Type: '+addedPoly.data.type+'</li><li>Note: '+addedPoly.data.annotationNote+'</li></ul>'+
         '<md-button ng-click="openSubscriptionDialog($event, \''+addedPoly.data.identifier+'\')" class="md-primary">'+
@@ -123,12 +130,8 @@ angular.module('aviationFX').controller("MapController", ['$scope', 'leafletData
         '</md-button>';
       var popup = L.popup.angular({
           template: template,
-          controller: 'MapController'
-      })
-      .setContent({
-          'name': 'foo',
-          'title': 'bar'
-      });;
+          controller: PopupController
+      });
 
       addedPoly.bindPopup(popup);
       addedPoly.popup = popup;
@@ -158,6 +161,7 @@ angular.module('aviationFX').controller("MapController", ['$scope', 'leafletData
   $scope.openSubscriptionDialog = function(ev, id) {
     console.info($scope.polygons[id]);
     $scope.map.closePopup();
+
     $mdDialog.show({
       controller: 'NewSubscriptionController',
       templateUrl: 'templates/newsubscription.tmpl.html',
@@ -167,9 +171,10 @@ angular.module('aviationFX').controller("MapController", ['$scope', 'leafletData
       locals: {
         airspace: $scope.polygons[id]
      }
+
     })
     .then(function(answer) {
-      $scope.status = 'You said the information was "' + answer + '".';
+      console.info('cancelled...'+answer);
     }, function() {
       $scope.status = 'You cancelled the dialog.';
     });
@@ -208,4 +213,4 @@ angular.module('aviationFX').controller("MapController", ['$scope', 'leafletData
   });
 
   console.info("MapController started");
-}]);
+});

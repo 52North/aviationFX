@@ -15,10 +15,13 @@ angular.module('aviationFX')
       templateUrl: 'templates/newsubscription.tmpl.html',
       parent: angular.element(document.body),
       targetEvent: ev,
-      clickOutsideToClose:true
+      clickOutsideToClose:true,
+      locals: {
+        airspace: undefined
+     }
     })
     .then(function(answer) {
-      $scope.status = 'You said the information was "' + answer + '".';
+      console.info('cancelled...'+answer);
     }, function() {
       $scope.status = 'You cancelled the dialog.';
     });

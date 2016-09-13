@@ -9,7 +9,15 @@ import java.util.List;
  */
 public class Polygon {
 
-    private final List<Position> outerRing;
+    private List<Position> outerRing;
+
+    public Polygon() {
+        this.outerRing = null;
+    }
+
+    public void setOuterRing(List<Position> outerRing) {
+        this.outerRing = outerRing;
+    }
 
     public Polygon(List<Position> outerRing) {
         this.outerRing = outerRing;

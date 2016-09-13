@@ -7,11 +7,25 @@ package org.n52.aviation.aviationfx.model;
  */
 public class Position {
 
-    private final double latitude;
-    private final double longitude;
+    private double latitude;
+    private double longitude;
+
+    public Position() {
+        this.latitude = 0;
+        this.longitude = 0;
+    }
+
 
     public Position(double latitude, double longitude) {
         this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 

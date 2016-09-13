@@ -1,39 +1,68 @@
-<md-dialog aria-label="Mango (Fruit)">
+<md-dialog aria-label="">
   <form ng-cloak>
     <md-toolbar>
       <div class="md-toolbar-tools">
-        <h2>{{airspace.data.identifier}}</h2>
+        <h2>Subscribe for data</h2>
         <span flex></span>
         <md-button class="md-icon-button" ng-click="cancel()">
-          <md-icon md-svg-src="img/icons/ic_close_24px.svg" aria-label="Close dialog"></md-icon>
+          <md-icon md-font-set="material-icons">cancel</md-icon>
         </md-button>
       </div>
     </md-toolbar>
     <md-dialog-content>
       <div class="md-dialog-content">
-        <h2>Using .md-dialog-content class that sets the padding as the spec</h2>
-        <p>
-          The mango is a juicy stone fruit belonging to the genus Mangifera, consisting of numerous tropical fruiting trees, cultivated mostly for edible fruit. The majority of these species are found in nature as wild mangoes. They all belong to the flowering plant family Anacardiaceae. The mango is native to South and Southeast Asia, from where it has been distributed worldwide to become one of the most cultivated fruits in the tropics.
+        <h2 ng-show="airspace">Airspace identifier: {{airspace.data.identifier}}</h2>
+        <p ng-show="airspace">
+          You are about to subscribe for data of the chosen publication that intersect the airspace '{{airspace.data.identifier}}'.
         </p>
-        <img style="margin: auto; max-width: 100%;" alt="Lush mango tree" src="img/mangues.jpg">
-        <p>
-          The highest concentration of Mangifera genus is in the western part of Malesia (Sumatra, Java and Borneo) and in Burma and India. While other Mangifera species (e.g. horse mango, M. foetida) are also grown on a more localized basis, Mangifera indica&mdash;the "common mango" or "Indian mango"&mdash;is the only mango tree commonly cultivated in many tropical and subtropical regions.
+        <p ng-show="!airspace">
+          You are about to subscribe for data all data of the chosen publication.
         </p>
-        <p>
-          It originated in Indian subcontinent (present day India and Pakistan) and Burma. It is the national fruit of India, Pakistan, and the Philippines, and the national tree of Bangladesh. In several cultures, its fruit and leaves are ritually used as floral decorations at weddings, public celebrations, and religious ceremonies.
-        </p>
+      </div>
+      <div class="md-dialog-content" layout="column">
+        <md-input-container>
+          <label>PubSub Service</label>
+          <md-select name="pubSub" ng-model="selectedService.host" required>
+            <md-option ng-repeat="p in pubSub" value="{{p.host}}">{{p.host}}</md-option>
+          </md-select>
+        </md-input-container>
+        <div>
+          <h3 ng-show="!selectedService.authenticated">No authentication required</h3>
+          <h3 ng-show="selectedService.authenticated">Authentication required!</h3>
+          <md-input-container>
+            <label>User</label>
+            <input ng-model="selectedService.username" type="text" ng-disabled="!selectedService.authenticated">
+          </md-input-container>
+          <md-input-container>
+            <label>Password</label>
+            <input ng-model="selectedService.password" type="password" ng-disabled="!selectedService.authenticated">
+          </md-input-container>
+          <md-button class="md-icon-button" ng-click="updateServiceCredentials()">
+            <md-icon md-font-set="material-icons">update</md-icon>
+          </md-button>
+        </div>
+        <md-input-container>
+          <label>Delivery Method</label>
+          <md-select name="dm" ng-model="selectedService.deliveryMethod" required>
+            <md-option ng-repeat="dm in selectedService.deliveryMethods" value="{{dm.identifier}}">{{dm.identifier}}</md-option>
+          </md-select>
+        </md-input-container>
+        <md-input-container>
+          <label>Publication</label>
+          <md-select name="pub" ng-model="selectedService.pubId" required>
+            <md-option ng-repeat="pub in selectedService.publications" value="{{pub.identifier}}">{{pub.identifier}}</md-option>
+          </md-select>
+        </md-input-container>
       </div>
     </md-dialog-content>
     <md-dialog-actions layout="row">
-      <md-button href="http://en.wikipedia.org/wiki/Mango" target="_blank" md-autofocus>
-        More on Wikipedia
-      </md-button>
       <span flex></span>
-      <md-button ng-click="answer('not useful')">
-       Not Useful
+      <span ng-show="subscribeSuccess">Success!</span>
+      <md-button ng-click="subscribe()" ng-disabled="subscribeSuccess">
+       Subscribe!
       </md-button>
-      <md-button ng-click="answer('useful')">
-        Useful
+      <md-button ng-click="cancel($event, 'shitty')">
+        Cancel
       </md-button>
     </md-dialog-actions>
   </form>

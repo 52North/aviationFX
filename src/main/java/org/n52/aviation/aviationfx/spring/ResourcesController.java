@@ -54,6 +54,12 @@ public class ResourcesController implements Constructable {
                 null,
                 null
         ));
+        this.services.add(new PubSubService(
+                "http://localhost:8080/subverse-webapp/service", false,
+                null,
+                null,
+                null
+        ));
 
         this.controllers = new HashMap<>();
         services.stream().forEach((service) -> {
@@ -87,6 +93,7 @@ public class ResourcesController implements Constructable {
         int pos = 0;
         for (PubSubService s : services) {
             s.setDetails(RequestUtils.resolveFullRequestUrl().concat("/"+pos));
+            pos++;
         }
         result.put("pubSubServices", services);
         return result;
@@ -106,6 +113,8 @@ public class ResourcesController implements Constructable {
             if (controller == null) {
                 throw new IllegalArgumentException("The provided host is not supported: "+service.getHost());
             }
+
+            LOG.info("Requesting services capabilities... with credentials: "+creds.getUser());
 
             controller.setCredentials(creds);
             controller.requestServiceCapabilities();

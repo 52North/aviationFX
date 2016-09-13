@@ -459,7 +459,7 @@
                 <artifactId>jetty-maven-plugin</artifactId>
                 <configuration>
                     <stopKey>C</stopKey>
-                    <stopPort>34343</stopPort>
+                    <stopPort>34344</stopPort>
                     <scanIntervalSeconds>3</scanIntervalSeconds>
                     <webAppConfig>
                         <contextPath>/${project.build.finalName}</contextPath>
@@ -469,7 +469,7 @@
                         <scanTarget>target/classes</scanTarget>
                     </scanTargets>
                     <httpConnector>
-                        <port>8080</port>
+                        <port>8081</port>
                     </httpConnector>
                 </configuration>
             </plugin>
