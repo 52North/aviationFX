@@ -1,4 +1,4 @@
-angular.module('aviationFX').controller("MapController", function($scope, leafletData, $location, $websocket, $mdDialog, apiService) {
+angular.module('aviationFX').controller("MapController", function($scope, leafletData, $location, $websocket, $mdDialog, apiService, subscriptionService) {
   angular.extend($scope, {
     center: {
       lat: 51.505,
@@ -27,8 +27,33 @@ angular.module('aviationFX').controller("MapController", function($scope, leafle
   currentLoc = currentLoc.substring(currentLoc.indexOf('://'), currentLoc.indexOf('/ui'));
   var messageUpdates = $websocket('ws'+currentLoc+'/api/messages/websocket');
 
-  $scope.parseFlight = function(payload) {
+  var dummyCount = 0;
+
+  $scope.parseFlight = function(message) {
+    var payload = message.message;
     payload.id = payload.gufi.split("-").join("_");
+
+    var subscriptions = subscriptionService.getSubscriptions();
+    var iconUrl;
+
+    if (subscriptions[message.subscriptionId] && subscriptions[message.subscriptionId].filter) {
+      iconUrl = 'img/aircraft_red.png';
+    }
+    else {
+      //this might be also on another subscription but matching both
+      if ($scope.markers[payload.id] && $scope.markers[payload.id].icon.iconUrl === 'img/aircraft_red.png') {
+        iconUrl = 'img/aircraft_red.png';
+      }
+      else {
+        iconUrl = 'img/aircraft.png';
+      }
+    }
+
+    // iconUrl = 'img/aircraft.png';
+
+    // if (payload.route && payload.route.positionList && payload.route.positionList.length > 0) {
+    //   iconUrl = 'img/aircraft_r.png';
+    // }
 
     if (!$scope.markers[payload.id] && payload.currentPosition) {
       $scope.markers[payload.id] = {
@@ -39,7 +64,7 @@ angular.module('aviationFX').controller("MapController", function($scope, leafle
         message: payload.gufi,
         rotationAngle: payload.bearing,
         icon: {
-            iconUrl: 'img/aircraft.png',
+            iconUrl: iconUrl,
             iconSize:     [32, 32],
             iconAnchor:   [16, 16],
             popupAnchor:  [0, -32],
@@ -75,20 +100,30 @@ angular.module('aviationFX').controller("MapController", function($scope, leafle
         lat: payload.currentPosition.latitude,
         lng: payload.currentPosition.longitude
       });
+
+      // if ($scope.markers[payload.id].icon.iconUrl === 'img/aircraft_red.png') {
+      //   iconUrl = 'img/aircraft.png';
+      // }
+      // else {
+      //   iconUrl = 'img/aircraft_red.png';
+      // }
+
+      if ($scope.markers[payload.id].icon.iconUrl !== iconUrl) {
+        $scope.markers[payload.id].icon = {
+            iconUrl: iconUrl,
+            iconSize:     [32, 32],
+            iconAnchor:   [16, 16],
+            popupAnchor:  [0, -32],
+            shadowSize:   [0, 0]
+        }
+      }
+
     }
 
-    if (payload.route && payload.route.positionList && payload.route.positionList.length > 0) {
-      $scope.markers[payload.id].icon = {
-          iconUrl: 'img/aircraft_r.png',
-          iconSize:     [32, 32],
-          iconAnchor:   [16, 16],
-          popupAnchor:  [0, -32],
-          shadowSize:   [0, 0]
-      }
-    }
   }
 
-  $scope.parseAirspace = function(payload) {
+  $scope.parseAirspace = function(message) {
+    var payload = message.message;
     if (payload.outerRing) {
 
       var addedPoly;
@@ -144,10 +179,10 @@ angular.module('aviationFX').controller("MapController", function($scope, leafle
       var payload = JSON.parse(message.data);
       // console.info(JSON.stringify(payload, null, 4));
 
-      if (payload.gufi) {
+      if (payload.message.gufi) {
         $scope.parseFlight(payload);
       }
-      else if (payload.type) {
+      else if (payload.message.type) {
         $scope.parseAirspace(payload);
       }
       else {

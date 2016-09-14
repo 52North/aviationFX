@@ -45,7 +45,8 @@ public class AmqpConsumer implements Constructable {
     public synchronized void onNewSubscription(NewSubscriptionEvent event) {
         if (event.getProperties().getDeliveryMethod().equals("https://docs.oasis-open.org/amqp/core/v1.0")) {
             try {
-                this.subscriptions.put(event.getProperties().getId(), createClient(event.getProperties().getAddress()));
+                this.subscriptions.put(event.getProperties().getId(), createClient(event.getProperties().getAddress(),
+                        event.getProperties().getId()));
                 LOG.info("New AMQP consumer: {}", event.getProperties().getAddress());
             } catch (AmqpCreationFailedException ex) {
                 LOG.warn(ex.getMessage(), ex);
@@ -64,7 +65,7 @@ public class AmqpConsumer implements Constructable {
         });
     }
 
-    private Connection createClient(String address) throws AmqpCreationFailedException {
+    private Connection createClient(String address, String subId) throws AmqpCreationFailedException {
         try {
             Connection conn = ConnectionBuilder.create(new URI(address)).build();
 
@@ -75,7 +76,7 @@ public class AmqpConsumer implements Constructable {
                         if (n != null) {
                             LOG.debug("Received message: {}", n);
                             eventBus.post(new NewMessageEvent(n.getBody(),
-                                    n.getContentType().orElse(ContentType.TEXT_PLAIN)));
+                                    n.getContentType().orElse(ContentType.TEXT_PLAIN), subId));
                         }
                     });
 

@@ -13,6 +13,7 @@ import org.n52.aviation.aviationfx.model.Airspace;
 import org.n52.aviation.aviationfx.model.Flight;
 import org.n52.aviation.aviationfx.model.Position;
 import org.n52.aviation.aviationfx.model.Route;
+import org.n52.aviation.aviationfx.model.SubscriptionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,12 +79,12 @@ public class WebSocketPublisher implements WebSocketConfigurer, Constructable, D
                 }
             }
 
-        }).start();
+        });
     }
 
     @Subscribe
-    public void onNewFlight(Flight f) {
-        convertAndSend(f);
+    public void onSubscriptionEvent(SubscriptionEvent se) {
+        convertAndSend(se);
     }
 
     @Override

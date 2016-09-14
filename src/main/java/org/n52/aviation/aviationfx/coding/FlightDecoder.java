@@ -11,8 +11,6 @@ import aero.fixm.flight.x30.FlightDocument;
 import aero.fixm.flight.x30.RouteSegmentType;
 import aero.fixm.flight.x30.RouteType;
 import aero.fixm.foundation.x30.GeographicLocationType;
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -20,48 +18,16 @@ import java.util.List;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.n52.aviation.aviationfx.consume.NewMessageEvent;
-import org.n52.aviation.aviationfx.spring.Constructable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
  * @author <a href="mailto:m.rieke@52north.org">Matthes Rieke</a>
  */
-public class FlightDecoder implements Constructable {
+public class FlightDecoder {
 
     private static final Logger LOG = LoggerFactory.getLogger(FlightDecoder.class);
-
-    @Autowired
-    private EventBus eventBus;
-
-    @Override
-    public void construct() {
-        this.eventBus.register(this);
-    }
-
-    @Subscribe
-    public void newMessage(NewMessageEvent ev) {
-        if (ev.getContentType().isPresent() && ev.getContentType().get().getName().equals("application/xml")) {
-            try {
-                XmlObject xo = XmlObject.Factory.parse(ev.getMessage().toString());
-                Flight flight = decode(xo);
-
-                new Thread(() -> {
-                    LOG.debug("Posting flight object "+flight.getGufi());
-                    eventBus.post(flight);
-                }).start();
-            } catch (XmlException | IOException ex) {
-                LOG.warn(ex.getMessage(), ex);
-            }
-        }
-        else {
-            LOG.info("Unsupported message: "+ ev.getContentType());
-        }
-    }
-
 
     public Flight decode(XmlObject xo) throws IOException {
         if (xo instanceof FlightDocument) {

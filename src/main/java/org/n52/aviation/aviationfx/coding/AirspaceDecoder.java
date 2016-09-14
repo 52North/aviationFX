@@ -73,7 +73,7 @@ public class AirspaceDecoder {
                         result.setAnnotationNote(annotationNote);
                     }
 
-                    result.setIdentifier(at.getIdentifier().getStringValue());
+                    result.setIdentifier(at.getIdentifier().getStringValue().trim());
 
                     return result;
                 }
@@ -129,12 +129,12 @@ public class AirspaceDecoder {
     private String resolveAnnotationNode(AirspaceActivationPropertyType[] activationArray) {
         for (AirspaceActivationPropertyType aap : activationArray) {
             AirspaceActivationType activation = aap.getAirspaceActivation();
-            if (activation.getAnnotationArray() != null && activation.getAircraftArray().length > 0) {
+            if (activation.getAnnotationArray() != null && activation.getAnnotationArray().length > 0) {
                 for (NotePropertyType np : activation.getAnnotationArray()) {
                     if (np.getNote().getTranslatedNoteArray() != null && np.getNote().getTranslatedNoteArray().length > 0) {
                         for (LinguisticNotePropertyType lnp : np.getNote().getTranslatedNoteArray()) {
                             if (lnp.getLinguisticNote().isSetNote()) {
-                                return lnp.getLinguisticNote().getNote().getStringValue();
+                                return lnp.getLinguisticNote().getNote().getStringValue().trim();
                             }
                         }
                     }

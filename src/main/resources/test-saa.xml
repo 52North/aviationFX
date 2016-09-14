@@ -77,7 +77,49 @@
             </gml:TimeInstant>
           </gml:validTime>
           <aixm:interpretation>SNAPSHOT</aixm:interpretation>
-          <aixm:type>D</aixm:type>
+          <aixm:type>P</aixm:type>
+          <aixm:activation>
+            <aixm:AirspaceActivation gml:id="ID_72">
+              <aixm:annotation>
+                <aixm:Note gml:id="ID_74">
+                  <aixm:purpose>REMARK</aixm:purpose>
+                  <aixm:translatedNote>
+                    <aixm:LinguisticNote gml:id="ID_75">
+                      <aixm:note>SAR activities during fire fighting</aixm:note>
+                    </aixm:LinguisticNote>
+                  </aixm:translatedNote>
+                </aixm:Note>
+              </aixm:annotation>
+              <aixm:annotation>
+                <aixm:Note gml:id="ID_76">
+                  <aixm:purpose>REMARK</aixm:purpose>
+                  <aixm:translatedNote>
+                    <aixm:LinguisticNote gml:id="ID_77">
+                      <aixm:note>Prohibited for all manned military and civilian aircraft during fire fighting activity.</aixm:note>
+                    </aixm:LinguisticNote>
+                  </aixm:translatedNote>
+                </aixm:Note>
+              </aixm:annotation>
+              <aixm:annotation>
+                <aixm:Note gml:id="ID_78">
+                  <aixm:purpose>REMARK</aixm:purpose>
+                  <aixm:translatedNote>
+                    <aixm:LinguisticNote gml:id="ID_79">
+                      <aixm:note>More info can be obtained via EBMIZGZF.</aixm:note>
+                    </aixm:LinguisticNote>
+                  </aixm:translatedNote>
+                </aixm:Note>
+              </aixm:annotation>
+              <aixm:activity>SAR</aixm:activity>
+              <aixm:status>ACTIVE</aixm:status>
+              <aixm:levels>
+                <aixm:AirspaceLayer gml:id="ID_73">
+                  <aixm:upperLimit uom="OTHER">CEILING</aixm:upperLimit>
+                  <aixm:lowerLimit uom="OTHER">FLOOR</aixm:lowerLimit>
+                </aixm:AirspaceLayer>
+              </aixm:levels>
+            </aixm:AirspaceActivation>
+          </aixm:activation>
           <aixm:designator>LEB04</aixm:designator>
           <aixm:name>LEBEC</aixm:name>
           <aixm:geometryComponent>
@@ -95,13 +137,39 @@
                         <gml:PolygonPatch>
                           <gml:exterior>
                             <gml:LinearRing>
-                              <gml:posList>34.54163119530972 -118.67980957031249
-                                34.420504880133834 -118.95996093749999
-                                34.4861839632883 -119.30465698242186
-                                34.92760087214065 -119.5147705078125
-                                35.08957427943165 -118.99291992187499
-                                34.88142481679758 -118.71826171875
-                                34.54163119530972 -118.67980957031249</gml:posList>
+                              <gml:posList>39.6591305852 -120.498962
+39.6539324027 -120.4306742699
+39.6385399107 -120.3650405246
+39.6135511551 -120.3046081577
+39.5799361779 -120.2517162031
+39.5389982318 -120.2084029051
+39.492321933 -120.1763265688
+39.4417106194 -120.1567028455
+39.3891155914 -120.150260684
+39.3365601759 -120.1572182088
+39.2860616694 -120.1772788412
+39.2395542 -120.2096471194
+39.1988154043 -120.2530629445
+39.1653995802 -120.3058523968
+39.1405796606 -120.365992832
+39.1252999822 -120.4311896579
+39.1201414148 -120.498962
+39.1252999822 -120.5667343421
+39.1405796606 -120.631931168
+39.1653995802 -120.6920716032
+39.1988154043 -120.7448610555
+39.2395542 -120.7882768806
+39.2860616694 -120.8206451588
+39.3365601759 -120.8407057912
+39.3891155914 -120.847663316
+39.4417106194 -120.8412211545
+39.492321933 -120.8215974312
+39.5389982318 -120.7895210949
+39.5799361779 -120.7462077969
+39.6135511551 -120.6933158423
+39.6385399107 -120.6328834754
+39.6539324027 -120.5672497301
+39.6591305852 -120.498962</gml:posList>
                             </gml:LinearRing>
                           </gml:exterior>
                         </gml:PolygonPatch>

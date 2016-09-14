@@ -1,4 +1,4 @@
-angular.module('aviationFX').controller("NewSubscriptionController", function($scope, $mdDialog, airspace, apiService) {
+angular.module('aviationFX').controller("NewSubscriptionController", function($scope, $mdDialog, airspace, apiService, subscriptionService) {
   $scope.airspace = airspace;
   $scope.pubSub = apiService.getServices();
   $scope.selectedService = {
@@ -53,6 +53,10 @@ angular.module('aviationFX').controller("NewSubscriptionController", function($s
     }
     apiService.subscribe(opts).then(function(response) {
       $scope.subscribeSuccess = true;
+      subscriptionService.addSubscription({
+        id: response.data.id,
+        filter: $scope.airspace ? true : false
+      })
     });
   }
 });

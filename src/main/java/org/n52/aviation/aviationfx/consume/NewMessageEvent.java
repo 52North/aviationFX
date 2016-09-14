@@ -11,14 +11,20 @@ public class NewMessageEvent {
 
     private final Object message;
     private final ContentType contentType;
+    private final String subscriptionId;
 
     public NewMessageEvent(Object value) {
         this(value, null);
     }
 
     public NewMessageEvent(Object value, ContentType ct) {
+        this(value, ct, null);
+    }
+
+    public NewMessageEvent(Object value, ContentType ct, String subscriptionId) {
         this.message = value;
         this.contentType = ct;
+        this.subscriptionId = subscriptionId;
     }
 
     public Object getMessage() {
@@ -29,5 +35,8 @@ public class NewMessageEvent {
         return Optional.ofNullable(contentType);
     }
 
+    public String getSubscriptionId() {
+        return subscriptionId;
+    }
 
 }
