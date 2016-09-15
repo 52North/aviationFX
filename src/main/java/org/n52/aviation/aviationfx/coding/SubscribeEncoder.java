@@ -48,7 +48,7 @@ public class SubscribeEncoder {
         SubscribeDocument subDoc = SubscribeDocument.Factory.newInstance();
         SubscribeDocument.Subscribe sub = subDoc.addNewSubscribe();
 
-        sub.setInitialTerminationTime(new Date(System.currentTimeMillis() + 1800000));
+        sub.setInitialTerminationTime(new Date(System.currentTimeMillis() + (1800000*4)));
 
         EndpointReferenceType conRef = sub.addNewConsumerReference();
         AttributedURIType addr = conRef.addNewAddress();

@@ -1,0 +1,17 @@
+<fx:Flight xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:fx="http://www.fixm.aero/flight/3.0" xmlns:fb="http://www.fixm.aero/base/3.0" xmlns:sdss="http://www.fixm.aero/ext/sdss/3.0" xmlns:ff="http://www.fixm.aero/foundation/3.0" xmlns:faa="http://www.fixm.aero/ext/faa/3.0">
+    <fx:enRoute>
+        <fx:position positionTime="2016-08-30T14:23:39.000Z" reportSource="SURVEILLANCE">
+            <fx:actualSpeed>
+                <fx:surveillance uom="KNOTS">346.0</fx:surveillance>
+            </fx:actualSpeed>
+            <fx:altitude ref="FLIGHT_LEVEL" uom="FEET">32900.0</fx:altitude>
+            <fx:position xsi:type="fb:LocationPointType">
+                <fb:location srsName="urn:ogc:def:crs:EPSG::4326">
+                    <ff:pos>40.870833 -120.910833</ff:pos>
+                </fb:location>
+            </fx:position>
+            <fx:track ref="TRUE" uom="DEGREES">177.4900360107422</fx:track>
+        </fx:position>
+    </fx:enRoute>
+    <fx:gufi codeSpace="urn:uuid">gugugufi</fx:gufi>
+</fx:Flight>

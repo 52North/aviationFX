@@ -18,6 +18,7 @@ import java.util.List;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,6 +129,7 @@ public class FlightDecoder {
             }
         }
 
+        LOG.warn("No Bearing for Doc: "+fd.xmlText(new XmlOptions().setSavePrettyPrint()));
         return 0.0;
     }
 
