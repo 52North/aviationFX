@@ -1,9 +1,9 @@
 angular.module('aviationFX').controller("MapController", function($scope, leafletData, $location, $websocket, $mdDialog, apiService, subscriptionService) {
   angular.extend($scope, {
     center: {
-      lat: 51.505,
-      lng: -0.09,
-      zoom: 4
+      lat: 38.381667,
+      lng: -121.748056,
+      zoom: 8
     },
     markers: {
     },
@@ -12,6 +12,8 @@ angular.module('aviationFX').controller("MapController", function($scope, leafle
     polygons: {
     }
   });
+
+  $scope.markerObjects = {};
 
   leafletData.getMap('aviationMap').then(function(map) {
     $scope.map = map;
@@ -55,14 +57,16 @@ angular.module('aviationFX').controller("MapController", function($scope, leafle
     //   iconUrl = 'img/aircraft_r.png';
     // }
 
+
     if (!$scope.markers[payload.id] && payload.currentPosition) {
+      var icon = L.divIcon({html:'<img src="'+iconUrl+'" style="-webkit-transform: rotate(39deg); -moz-transform:rotate(39deg);" />'})
       $scope.markers[payload.id] = {
         lat: payload.currentPosition.latitude,
         lng: payload.currentPosition.longitude,
         draggable: false,
         data: payload,
         message: payload.gufi,
-        rotationAngle: payload.bearing,
+        iconAngle: payload.bearing,
         icon: {
             iconUrl: iconUrl,
             iconSize:     [32, 32],
@@ -77,16 +81,17 @@ angular.module('aviationFX').controller("MapController", function($scope, leafle
       };
 
       setTimeout(function() {
-        leafletData.getMarkers('aviationMap').then(function(markers) {
-          if (markers && markers[payload.id]) {
-            markers[payload.id].on('click', function(ev) {
+        leafletData.getMarkers('aviationMap').then(function(retrieveMarkers) {
+          if (retrieveMarkers && retrieveMarkers[payload.id] && !retrieveMarkers[payload.id].actionsSetup) {
+            retrieveMarkers[payload.id].on('click', function(ev) {
               $scope.activeFlightRoutes(payload.id);
             });
-
-            markers[payload.id].getPopup().on('close', $scope.hideFlightRoutes);
+            retrieveMarkers[payload.id].actionsSetup = true;
+            retrieveMarkers[payload.id].getPopup().on('close', $scope.hideFlightRoutes);
+            $scope.markerObjects[payload.id] = retrieveMarkers[payload.id];
           }
           else {
-            console.info('Marker not found: '+ payload.id, +'; '+JSON.stringify(markers));
+            console.info('Marker not found: '+ payload.id, +'; '+JSON.stringify(retrieveMarkers));
           }
         });
       },
@@ -94,6 +99,7 @@ angular.module('aviationFX').controller("MapController", function($scope, leafle
 
     }
     else if (payload.currentPosition) {
+      $scope.markers[payload.id].data = payload;
       $scope.markers[payload.id].lat = payload.currentPosition.latitude;
       $scope.markers[payload.id].lng = payload.currentPosition.longitude;
       $scope.markers[payload.id].history.push({
@@ -101,14 +107,7 @@ angular.module('aviationFX').controller("MapController", function($scope, leafle
         lng: payload.currentPosition.longitude
       });
 
-      // if ($scope.markers[payload.id].icon.iconUrl === 'img/aircraft_red.png') {
-      //   iconUrl = 'img/aircraft.png';
-      // }
-      // else {
-      //   iconUrl = 'img/aircraft_red.png';
-      // }
-
-      if ($scope.markers[payload.id].icon.iconUrl !== iconUrl) {
+      if ($scope.markers[payload.id].icon.iconUrl !== iconUrl || $scope.markers[payload.id].rotationAngle !== payload.bearing) {
         $scope.markers[payload.id].icon = {
             iconUrl: iconUrl,
             iconSize:     [32, 32],
@@ -117,6 +116,8 @@ angular.module('aviationFX').controller("MapController", function($scope, leafle
             shadowSize:   [0, 0]
         }
       }
+
+      $scope.markerObjects[payload.id].setIconAngle(payload.bearing);
 
     }
 

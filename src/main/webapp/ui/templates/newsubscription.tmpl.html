@@ -1,5 +1,5 @@
-<md-dialog aria-label="">
-  <form ng-cloak>
+<md-dialog aria-label="" ng-cloak>
+  <form>
     <md-toolbar>
       <div class="md-toolbar-tools">
         <h2>Subscribe for data</h2>
@@ -10,13 +10,10 @@
       </div>
     </md-toolbar>
     <md-dialog-content>
-      <div class="md-dialog-content">
-        <h2 ng-show="airspace">Airspace identifier: {{airspace.data.identifier}}</h2>
-        <p ng-show="airspace">
+      <div class="md-dialog-content" ng-show="airspace">
+        <h2>Airspace identifier: {{airspace.data.identifier}}</h2>
+        <p>
           You are about to subscribe for data of the chosen publication that intersect the airspace '{{airspace.data.identifier}}'.
-        </p>
-        <p ng-show="!airspace">
-          You are about to subscribe for data all data of the chosen publication.
         </p>
       </div>
       <div class="md-dialog-content" layout="column">
