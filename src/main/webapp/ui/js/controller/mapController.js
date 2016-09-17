@@ -17,6 +17,18 @@ angular.module('aviationFX').controller("MapController", function($scope, leafle
 
   leafletData.getMap('aviationMap').then(function(map) {
     $scope.map = map;
+
+    var openaip_cached_basemap = L.tileLayer("http://{s}.tile.maps.openaip.net/geowebcache/service/tms/1.0.0/openaip_basemap@EPSG%3A900913@png/{z}/{x}/{y}.png", {
+        maxZoom: 14,
+        minZoom: 4,
+        tms: true,
+        detectRetina: true,
+        subdomains: '12',
+        format: 'image/png',
+        transparent: true,
+        opacity: 0.5,
+        attribution: 'OpenAIP Map Tiles'
+    }).addTo(map);
   });
 
   $scope.panMap = function() {
@@ -33,6 +45,7 @@ angular.module('aviationFX').controller("MapController", function($scope, leafle
 
   $scope.parseFlight = function(message) {
     var payload = message.message;
+    var alertRequired = false;
     payload.id = payload.gufi.split("-").join("_");
 
     var subscriptions = subscriptionService.getSubscriptions();
@@ -40,6 +53,11 @@ angular.module('aviationFX').controller("MapController", function($scope, leafle
 
     if (subscriptions[message.subscriptionId] && subscriptions[message.subscriptionId].filter) {
       iconUrl = 'img/aircraft_red.png';
+
+      if (!$scope.markers[payload.id] || $scope.markers[payload.id].icon.iconUrl !== 'img/aircraft_red.png') {
+        //new matching gufi -> alert popup
+        alertRequired = true;
+      }
     }
     else {
       //this might be also on another subscription but matching both
@@ -51,15 +69,8 @@ angular.module('aviationFX').controller("MapController", function($scope, leafle
       }
     }
 
-    // iconUrl = 'img/aircraft.png';
-
-    // if (payload.route && payload.route.positionList && payload.route.positionList.length > 0) {
-    //   iconUrl = 'img/aircraft_r.png';
-    // }
-
-
     if (!$scope.markers[payload.id] && payload.currentPosition) {
-      var icon = L.divIcon({html:'<img src="'+iconUrl+'" style="-webkit-transform: rotate(39deg); -moz-transform:rotate(39deg);" />'})
+
       $scope.markers[payload.id] = {
         lat: payload.currentPosition.latitude,
         lng: payload.currentPosition.longitude,
@@ -121,6 +132,25 @@ angular.module('aviationFX').controller("MapController", function($scope, leafle
 
     }
 
+    if (alertRequired) {
+      $scope.alertOnMatchingGufi($scope.markers[payload.id]);
+    }
+
+  }
+
+  $scope.alertOnMatchingGufi = function(matchingMarker) {
+    var confirm = $mdDialog.confirm()
+          .title('A Flight has entered an subscribed Airspace')
+          .textContent('Flight with GUFI \''+matchingMarker.data.id+'\' has entered the subscribed Airspace!')
+          .ariaLabel('Alert')
+          .ok('Go to Flight!')
+          .cancel('Ignore');
+
+    $mdDialog.show(confirm).then(function() {
+      $scope.map.panTo(new L.LatLng(matchingMarker.lat, matchingMarker.lng));
+    }, function() {
+      console.info("ignore for now");
+    });
   }
 
   $scope.parseAirspace = function(message) {
@@ -249,4 +279,8 @@ angular.module('aviationFX').controller("MapController", function($scope, leafle
   });
 
   console.info("MapController started");
+
+  setTimeout(function() {
+    $scope.alertOnMatchingGufi();
+  }, 1000)
 });

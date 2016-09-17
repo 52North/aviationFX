@@ -2,7 +2,8 @@
   <form>
     <md-toolbar>
       <div class="md-toolbar-tools">
-        <h2>Subscribe for data</h2>
+        <h2>Subscribe for data
+        </h2>
         <span flex></span>
         <md-button class="md-icon-button" ng-click="cancel()">
           <md-icon md-font-set="material-icons">cancel</md-icon>
@@ -24,19 +25,23 @@
           </md-select>
         </md-input-container>
         <div>
-          <h3 ng-show="!selectedService.authenticated">No authentication required</h3>
-          <h3 ng-show="selectedService.authenticated">Authentication required!</h3>
-          <md-input-container>
-            <label>User</label>
-            <input ng-model="selectedService.username" type="text" ng-disabled="!selectedService.authenticated">
-          </md-input-container>
-          <md-input-container>
-            <label>Password</label>
-            <input ng-model="selectedService.password" type="password" ng-disabled="!selectedService.authenticated">
-          </md-input-container>
-          <md-button class="md-icon-button" ng-click="updateServiceCredentials()">
-            <md-icon md-font-set="material-icons">update</md-icon>
-          </md-button>
+          <div>
+            <span ng-show="!selectedService.authenticated">No authentication required</span>
+            <span ng-show="selectedService.authenticated">Authentication required!</span>
+            <md-button class="md-icon-button" ng-click="updateServiceCredentials()">
+              <md-icon md-font-set="material-icons">update</md-icon>
+            </md-button>
+          </div>
+          <div layout="row">
+            <md-input-container flex="50">
+              <label>User</label>
+              <input ng-model="selectedService.username" type="text" ng-disabled="!selectedService.authenticated">
+            </md-input-container>
+            <md-input-container flex="50">
+              <label>Password</label>
+              <input ng-model="selectedService.password" type="password" ng-disabled="!selectedService.authenticated">
+            </md-input-container>
+          </div>
         </div>
         <md-input-container>
           <label>Delivery Method</label>
