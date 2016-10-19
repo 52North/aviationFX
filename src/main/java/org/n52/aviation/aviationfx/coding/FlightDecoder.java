@@ -11,6 +11,10 @@ import aero.fixm.flight.x30.FlightDocument;
 import aero.fixm.flight.x30.RouteSegmentType;
 import aero.fixm.flight.x30.RouteType;
 import aero.fixm.foundation.x30.GeographicLocationType;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -29,11 +33,29 @@ import org.slf4j.LoggerFactory;
 public class FlightDecoder {
 
     private static final Logger LOG = LoggerFactory.getLogger(FlightDecoder.class);
+    private final GeometryFactory geometryFactory;
+    private final Envelope tb12bbox;
+    private final Envelope tb12bbox2;
+    private final Envelope tb12bbox3;
+
+    public FlightDecoder() {
+        this.geometryFactory = new GeometryFactory();
+        this.tb12bbox = new Envelope(new Coordinate(-88.991824, 36.594847), new Coordinate(-77.845203, 29.387093));
+        this.tb12bbox2 = new Envelope(new Coordinate(-93.940118, 41.044241), new Coordinate(-88.178444, 37.142075));
+
+        //tampa --> LA
+        this.tb12bbox3 = new Envelope(new Coordinate(-84.051634, 28.954655), new Coordinate(-81.196927, 26.999078));
+    }
+
+
 
     public Flight decode(XmlObject xo) throws IOException {
         if (xo instanceof FlightDocument) {
            FlightDocument fd = (FlightDocument) xo;
            Position curr = parseCurrentPosition(fd);
+
+           curr = applyTestbed12Shift(curr);
+
            String gufi = parseGufi(fd);
            String identification = parseIdentification(fd);
            double bearing = parseBearing(fd);
@@ -133,5 +155,19 @@ public class FlightDecoder {
         return 0.0;
     }
 
+    private Position applyTestbed12Shift(Position curr) {
+        Point geom = this.geometryFactory.createPoint(new Coordinate(curr.getLongitude(), curr.getLatitude()));
+        if (tb12bbox.contains(geom.getCoordinate())) {
+            return new Position(curr.getLatitude() + 4.158672 + 0.313166, curr.getLongitude() - 37.830098 + 0.091904 - 0.491788);
+        }
+        else if (tb12bbox2.contains(geom.getCoordinate())) {
+            return new Position(curr.getLatitude() - 0.937475, curr.getLongitude() - 32.054741);
+        }
+        else if (tb12bbox3.contains(geom.getCoordinate())) {
+            return new Position(curr.getLatitude() + 5.96084, curr.getLongitude() - 35.887528);
+        }
+
+        return curr;
+    }
 
 }
