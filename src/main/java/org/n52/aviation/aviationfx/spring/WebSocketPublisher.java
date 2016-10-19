@@ -6,8 +6,10 @@ import com.google.common.eventbus.Subscribe;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.n52.aviation.aviationfx.model.Airspace;
 import org.n52.aviation.aviationfx.model.Flight;
@@ -43,6 +45,9 @@ public class WebSocketPublisher implements WebSocketConfigurer, Constructable, D
 
     @Autowired
     private CustomObjectMapper mapper;
+    private Thread sender;
+    private boolean running = true;
+    private List<SubscriptionEvent> buffer = new ArrayList<>();
 
     @Override
     public void construct() {
@@ -80,16 +85,45 @@ public class WebSocketPublisher implements WebSocketConfigurer, Constructable, D
             }
 
         });
+
+        this.sender = new Thread(() -> {
+            while (running) {
+                synchronized (WebSocketPublisher.this) {
+                    while (buffer.isEmpty()) {
+                        try {
+                            WebSocketPublisher.this.wait();
+                        } catch (InterruptedException ex) {
+                            LOG.warn(ex.getMessage(), ex);
+                        }
+                    }
+
+                    convertAndSend(buffer);
+                    buffer.clear();
+                }
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    LOG.warn(ex.getMessage(), ex);
+                }
+            }
+        });
+        this.sender.start();
+
     }
 
     @Subscribe
     public void onSubscriptionEvent(SubscriptionEvent se) {
-        convertAndSend(se);
+        synchronized (this) {
+            this.buffer.add(se);
+            this.notifyAll();
+        }
     }
 
     @Override
     public void destroy() {
         this.eventBus.unregister(this);
+        this.running = false;
     }
 
 

@@ -14,16 +14,18 @@ public class PubSubService {
     private List<DeliveryMethod> deliveryMethods;
     private List<Publication> publications;
     private String details;
+    private String label;
 
     public PubSubService() {
     }
 
-    public PubSubService(String host, boolean authenticated, List<DeliveryMethod> deliveryMethods, List<Publication> publications, String details) {
+    public PubSubService(String host, boolean authenticated, List<DeliveryMethod> deliveryMethods, List<Publication> publications, String details, String label) {
         this.host = host;
         this.authenticated = authenticated;
         this.deliveryMethods = deliveryMethods;
         this.publications = publications;
         this.details = details;
+        this.label = label;
     }
 
     public List<DeliveryMethod> getDeliveryMethods() {
@@ -56,6 +58,10 @@ public class PubSubService {
 
     public void setDetails(String details) {
         this.details = details;
+    }
+
+    public String getLabel() {
+        return label;
     }
 
 }

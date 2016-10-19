@@ -10,13 +10,13 @@
   <link href="css/material-icons.css" rel="stylesheet">
   <link rel="icon" href="favicon.png" sizes="32x32" type="image/png">
 </head>
-<body>
+<body layout-fill layout="column">
 
-  <div layout="row">
-    <div ng-include="'templates/menu.html'"></div>
-    <div flex layout="column" >
-      <div ng-view flex layout="column"></div>
-    </div>
+  <div ng-include="'templates/menu.html'"></div>
+  <div layout="row" flex>
+    <md-content flex layout="column">
+      <div ng-view></div>
+    </md-content>
   </div>
 
   <!-- <div ng-controller="MainController">

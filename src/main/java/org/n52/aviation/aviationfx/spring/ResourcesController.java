@@ -48,17 +48,18 @@ public class ResourcesController implements Constructable {
     @Override
     public void construct() {
         this.services = new ArrayList<>();
-        this.services.add(new PubSubService(
-                "http://ows.dev.52north.org:8080/subverse-webapp/service", true,
-                null,
-                null,
-                null
-        ));
+//        this.services.add(new PubSubService(
+//                "http://ows.dev.52north.org:8080/subverse-webapp/service", true,
+//                null,
+//                null,
+//                null
+//        ));
         this.services.add(new PubSubService(
                 "http://localhost:8080/subverse-webapp/service", false,
                 null,
                 null,
-                null
+                null,
+                "NEMS PubSub Async Service"
         ));
 
         this.controllers = new HashMap<>();

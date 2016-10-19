@@ -21,7 +21,7 @@
         <md-input-container>
           <label>PubSub Service</label>
           <md-select name="pubSub" ng-model="selectedService.host" required>
-            <md-option ng-repeat="p in pubSub" value="{{p.host}}">{{p.host}}</md-option>
+            <md-option ng-repeat="p in pubSub" value="{{p.host}}">{{p.label}}</md-option>
           </md-select>
         </md-input-container>
         <div>

@@ -128,7 +128,10 @@ angular.module('aviationFX').controller("MapController", function($scope, leafle
         }
       }
 
-      $scope.markerObjects[payload.id].setIconAngle(payload.bearing);
+      if ($scope.markerObjects[payload.id] && $scope.markerObjects[payload.id].setIconAngle) {
+        $scope.markerObjects[payload.id].setIconAngle(payload.bearing);
+      }
+
 
     }
 
@@ -140,8 +143,8 @@ angular.module('aviationFX').controller("MapController", function($scope, leafle
 
   $scope.alertOnMatchingGufi = function(matchingMarker) {
     var confirm = $mdDialog.confirm()
-          .title('A Flight has entered an subscribed Airspace')
-          .textContent('Flight with GUFI \''+matchingMarker.data.id+'\' has entered the subscribed Airspace!')
+          .title('A Flight has entered a subscribed Airspace')
+          .textContent('Flight with GUFI \''+matchingMarker.data.id+'\' has entered a subscribed Airspace!')
           .ariaLabel('Alert')
           .ok('Go to Flight!')
           .cancel('Ignore');
@@ -168,7 +171,7 @@ angular.module('aviationFX').controller("MapController", function($scope, leafle
             });
           });
           var poly = L.polygon(coords, {
-            color: '#000080',
+            color: '#FFBF00',
             weight: 8,
             opacity: 0.5
           });
@@ -207,19 +210,22 @@ angular.module('aviationFX').controller("MapController", function($scope, leafle
 
   messageUpdates.onMessage(function(message) {
     if (message && message.data) {
-      var payload = JSON.parse(message.data);
+      var payloadArray = JSON.parse(message.data);
       // console.info(JSON.stringify(payload, null, 4));
 
-      if (payload.message.gufi) {
-        $scope.parseFlight(payload);
+      if (payloadArray) {
+        payloadArray.forEach(function(payload) {
+          if (payload.message.gufi) {
+            $scope.parseFlight(payload);
+          }
+          else if (payload.message.type) {
+            $scope.parseAirspace(payload);
+          }
+          else {
+            console.warn("Not supported: "+JSON.stringify(payload));
+          }
+        });
       }
-      else if (payload.message.type) {
-        $scope.parseAirspace(payload);
-      }
-      else {
-        console.warn("Not supported: "+JSON.stringify(payload));
-      }
-
 
     }
   });
@@ -280,7 +286,5 @@ angular.module('aviationFX').controller("MapController", function($scope, leafle
 
   console.info("MapController started");
 
-  setTimeout(function() {
-    $scope.alertOnMatchingGufi();
-  }, 1000)
+
 });
